@@ -1,0 +1,67 @@
+{
+  "hero": {
+    "asset": "hero",
+    "alt": "Heller Wohnbereich mit großen Fensterflächen, warmen Holztönen und Zugang zur Terrasse.",
+    "ratio": "16:10"
+  },
+  "living": {
+    "asset": "living",
+    "alt": "Wohnzimmer mit Sofa, Holztisch und warmem Tageslicht.",
+    "ratio": "4:3"
+  },
+  "bedroom": {
+    "asset": "bedroom",
+    "alt": "Ruhiges Schlafzimmer mit hellem Bett, Holzrahmen und weichen Naturtönen.",
+    "ratio": "4:3"
+  },
+  "kitchen": {
+    "asset": "kitchen",
+    "alt": "Moderne Küche mit Holzfronten, Steinoberfläche und viel Tageslicht.",
+    "ratio": "4:3"
+  },
+  "bathroom": {
+    "asset": "bathroom",
+    "alt": "Badezimmer mit bodengleicher Dusche, Holzwaschtisch und warmen Steinflächen.",
+    "ratio": "4:3"
+  },
+  "outdoor": {
+    "asset": "outdoor",
+    "alt": "Terrasse mit großem Holztisch, bequemen Stühlen und Abendlicht.",
+    "ratio": "4:3"
+  },
+  "exterior": {
+    "asset": "exterior",
+    "alt": "Außenansicht eines modernen Küsten-Apartmenthauses mit Balkonen und Strandnähe.",
+    "ratio": "4:3"
+  },
+  "surroundings": {
+    "asset": "surroundings",
+    "alt": "Dünenweg an der Ostseeküste mit Strandgras und weitem Blick aufs Wasser.",
+    "ratio": "16:10"
+  },
+  "host": {
+    "asset": "host",
+    "alt": "Porträt der Gastgeberin Katharina Jensen.",
+    "ratio": "4:5"
+  },
+  "nearbyCity": {
+    "asset": "nearbyCity",
+    "alt": "Heller Stadtkern eines Küstenorts mit kleinen Läden und ruhiger Fußgängerzone.",
+    "ratio": "16:10"
+  },
+  "nearbyZoo": {
+    "asset": "nearbyZoo",
+    "alt": "Tierpark mit weiten Gehegen, Holzwegen und ruhiger grüner Umgebung.",
+    "ratio": "16:10"
+  },
+  "nearbyStrand": {
+    "asset": "nearbyStrand",
+    "alt": "Sandstrand mit Dünen, Stegzugang und weitem Blick auf die Ostsee.",
+    "ratio": "16:10"
+  },
+  "nearbyMarket": {
+    "asset": "nearbyMarket",
+    "alt": "Kleiner Lebensmittelmarkt mit frischen Produkten und freundlichem Eingang.",
+    "ratio": "16:10"
+  }
+}

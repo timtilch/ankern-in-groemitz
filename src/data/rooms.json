@@ -1,0 +1,39 @@
+[
+  {
+    "tabLabel": "Wohnen",
+    "title": "Wohnzimmer",
+    "eyebrow": "Ankommen",
+    "description": "Der offene Wohnbereich ist der Mittelpunkt der Wohnung: großzügig, hell und bewusst ruhig gestaltet. Hier treffen weiche Stoffe, helle Holzoberflächen und ein entspannter Blick ins Freie aufeinander.",
+    "details": ["28 m²", "Smart-TV", "Terrassenzugang"],
+    "imageKey": "living",
+    "imageSide": "right"
+  },
+  {
+    "tabLabel": "Schlafen",
+    "title": "Schlafzimmer",
+    "eyebrow": "Zur Ruhe kommen",
+    "description": "Zwei Schlafzimmer bieten klare, freundliche Räume mit viel Licht und einem reduzierten Materialmix. Die Gestaltung bleibt bewusst zurückhaltend, damit sich Erholung nicht inszeniert, sondern selbstverständlich anfühlt.",
+    "details": ["2 Zimmer", "Doppelbett + Einzelbetten", "Verdunkelbar"],
+    "imageKey": "bedroom",
+    "imageSide": "left"
+  },
+  {
+    "tabLabel": "Küche",
+    "title": "Küche & Essen",
+    "eyebrow": "Gemeinsam",
+    "description": "Die Küche ist vollständig auf entspannte Urlaubstage ausgelegt und verbindet Funktion mit wohnlichem Charakter. Frühstück in Ruhe, gemeinsames Kochen oder ein spätes Glas Wein funktionieren hier gleichermaßen gut.",
+    "details": ["Essplatz", "Voll ausgestattet", "Kurze Wege"],
+    "imageKey": "kitchen",
+    "imageSide": "right"
+  },
+  {
+    "tabLabel": "Bad",
+    "title": "Bad & Außenbereich",
+    "eyebrow": "Leicht und unkompliziert",
+    "description": "Bad und Terrasse ergänzen die Wohnung um genau die Elemente, die einen Aufenthalt runder machen: klare Materialien, gutes Licht und Platz für kleine Routinen zwischen Strand, Ausflug und Abendessen.",
+    "details": ["Walk-in-Dusche", "Terrasse", "Abendsonne"],
+    "imageKey": "bathroom",
+    "secondaryImageKey": "outdoor",
+    "imageSide": "left"
+  }
+]

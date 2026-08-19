@@ -1,0 +1,130 @@
+---
+import { area, apartment, imageMeta } from '../data/content';
+import { mediaLibrary } from '../data/media';
+import ResponsiveImage from './ResponsiveImage.astro';
+type NearbyEntry = { time: string; title: string; description: string };
+type ImageEntry = { asset: string; alt: string; ratio: string };
+
+const nearbyEntries = (area.nearby ?? []) as NearbyEntry[];
+const imageCatalog = imageMeta as Record<string, ImageEntry>;
+---
+
+<section class="section location-section" id="umgebung">
+  <div class="container">
+    <div class="section-header">
+      <span class="eyebrow">Umgebung</span>
+      <h2>Wichtige Ziele lassen sich schnell und unkompliziert erreichen.</h2>
+      <p>{apartment.area.intro}</p>
+    </div>
+
+    <div class="nearby-strip">
+      {
+        nearbyEntries.map((entry) => {
+          const imageKey = (entry as NearbyEntry & { imageKey?: string }).imageKey;
+          const image = imageKey ? mediaLibrary[imageCatalog[imageKey].asset] : null;
+          const alt = imageKey ? imageCatalog[imageKey].alt : '';
+
+          return (
+            <article class="nearby-item">
+              {
+                image && (
+                  <div class="nearby-image-wrap">
+                    <ResponsiveImage src={image} alt={alt} class="nearby-image" sizes="(min-width: 960px) 24vw, 100vw" />
+                  </div>
+                )
+              }
+              <div class="nearby-copy">
+                <strong>{entry.time}</strong>
+                <span>{entry.title}</span>
+                <p>{entry.description}</p>
+              </div>
+            </article>
+          );
+        })
+      }
+    </div>
+
+    <a class="action-link maps-link" href={apartment.area.mapUrl} target="_blank" rel="noreferrer">
+      Auf Google Maps ansehen
+    </a>
+  </div>
+</section>
+
+<style>
+  .location-section {
+    background: var(--surface);
+  }
+
+  .nearby-strip {
+    display: grid;
+    gap: 0;
+    margin-bottom: 1.2rem;
+  }
+
+  .nearby-item {
+    display: grid;
+    gap: 0;
+  }
+
+  .nearby-image-wrap {
+    position: relative;
+    overflow: hidden;
+    padding-bottom: 75%;
+  }
+
+  .nearby-image-wrap :global(img.nearby-image) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .nearby-copy {
+    display: grid;
+    gap: 0.45rem;
+    padding: 0.9rem 0 0;
+  }
+
+  .nearby-copy strong,
+  .nearby-copy span,
+  .nearby-copy p {
+    margin: 0;
+  }
+
+  .nearby-copy strong {
+    font-size: clamp(1.35rem, 2vw, 1.8rem);
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .nearby-copy span {
+    font-size: 0.88rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .nearby-copy p {
+    color: var(--text-soft);
+    max-width: 18rem;
+  }
+
+  .maps-link {
+    margin-top: 0.2rem;
+  }
+
+  @media (min-width: 720px) {
+    .nearby-strip {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: 1.8rem;
+      row-gap: 1.8rem;
+    }
+  }
+
+  @media (min-width: 960px) {
+    .nearby-strip {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      column-gap: 1.35rem;
+    }
+  }
+</style>

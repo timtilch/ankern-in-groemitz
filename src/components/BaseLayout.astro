@@ -1,0 +1,284 @@
+---
+import apartment from '../data/apartment.json';
+import imageMeta from '../data/images.json';
+import { mediaLibrary } from '../data/media';
+import { getCanonical, getSchema } from '../lib/site';
+type ImageEntry = { asset: string; alt: string; ratio: string };
+
+interface Props {
+  title?: string;
+  description?: string;
+  pathname?: string;
+}
+
+const {
+  title = apartment.seo.title,
+  description = apartment.seo.description,
+  pathname = '/'
+} = Astro.props;
+
+const canonical = getCanonical(pathname);
+const imageCatalog = imageMeta as Record<string, ImageEntry>;
+const heroImage = mediaLibrary[imageCatalog[apartment.imageKeys.hero].asset];
+const imageUrls = Object.values(apartment.imageKeys).map((key) => getCanonical(mediaLibrary[imageCatalog[key].asset].src));
+const schema = getSchema(imageUrls);
+---
+
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={getCanonical(heroImage.src)} />
+    <meta name="theme-color" content="#f4efe7" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(schema)} />
+  </head>
+  <body>
+    <a class="skip-link" href="#content">Zum Inhalt springen</a>
+    <slot />
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --background: #ffffff;
+    --surface: #f7f5f1;
+    --surface-alt: #fcfbf8;
+    --surface-footer: #f3f1ec;
+    --line: rgba(25, 31, 30, 0.1);
+    --line-strong: rgba(25, 31, 30, 0.2);
+    --text: #171b1a;
+    --text-soft: rgba(23, 27, 26, 0.64);
+    --accent: #5f86cc;
+    --accent-rgb: 95, 134, 204;
+    --container: min(1180px, calc(100vw - 2rem));
+    --full-bleed: minmax(1rem, 1fr);
+    --section-space: 4rem;
+    --section-space-lg: 5.5rem;
+    --heading-gap: 0.85rem;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  body {
+    margin: 0;
+    background: var(--background);
+    color: var(--text);
+    font-family: 'Outfit', 'Inter', 'Segoe UI', 'Helvetica Neue', sans-serif;
+    line-height: 1.6;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  img {
+    display: block;
+    max-width: 100%;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  .skip-link {
+    position: absolute;
+    left: 1rem;
+    top: -3rem;
+    background: var(--text);
+    color: white;
+    padding: 0.75rem 1rem;
+    z-index: 100;
+  }
+
+  .skip-link:focus {
+    top: 1rem;
+  }
+
+  .page-shell {
+    overflow: clip;
+  }
+
+  .container {
+    width: var(--container);
+    margin: 0 auto;
+  }
+
+  .eyebrow {
+    display: inline-block;
+    color: var(--text-soft);
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .section {
+    padding: var(--section-space) 0;
+  }
+
+  .section-header {
+    display: grid;
+    gap: var(--heading-gap);
+    margin-bottom: 1.75rem;
+    max-width: 35rem;
+  }
+
+  .section-header h2 {
+    margin: 0;
+    font-family: inherit;
+    font-size: clamp(2rem, 3.8vw, 3.35rem);
+    font-weight: 700;
+    line-height: 1.08;
+    letter-spacing: -0.035em;
+  }
+
+  .section-header p {
+    margin: 0;
+    color: var(--text-soft);
+    font-size: 0.98rem;
+    max-width: 30rem;
+  }
+
+  @media (min-width: 960px) {
+    .section-header {
+      max-width: min(66%, 52rem);
+    }
+
+    .section-header p {
+      max-width: 100%;
+    }
+  }
+
+  .button-row,
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 1.5rem;
+  }
+
+  .action-link,
+  .button,
+  .button-secondary {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color 180ms ease, background-color 180ms ease, border-color 180ms ease, transform 180ms ease;
+  }
+
+  .action-link {
+    gap: 0.55rem;
+    font-size: 0.82rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .action-link::after {
+    content: '→';
+    transition: transform 180ms ease;
+  }
+
+  .action-link:hover::after,
+  .action-link:focus-visible::after {
+    transform: translateX(0.25rem);
+  }
+
+  .button,
+  .button-secondary {
+    justify-content: center;
+    min-height: 2.95rem;
+    padding: 0.85rem 1.4rem;
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 0.78rem;
+  }
+
+  .button:hover,
+  .button-secondary:hover,
+  .button:focus-visible,
+  .button-secondary:focus-visible {
+    background: #4f74b5;
+    border-color: #4f74b5;
+    color: white;
+  }
+
+  .action-link:hover,
+  .action-link:focus-visible {
+    color: var(--accent);
+  }
+
+  .button-secondary {
+    background: transparent;
+    color: var(--text);
+    border-color: var(--line-strong);
+  }
+
+  .button-secondary:hover,
+  .button-secondary:focus-visible,
+  .action-link:hover,
+  .action-link:focus-visible {
+    color: var(--accent);
+  }
+
+  .button::after,
+  .button-secondary::after {
+    content: '→';
+    margin-left: 0.7rem;
+  }
+
+  .rule {
+    border-top: 1px solid var(--line);
+  }
+
+  .bleed-grid {
+    display: grid;
+    grid-template-columns: var(--full-bleed) minmax(0, var(--container)) var(--full-bleed);
+  }
+
+  .bleed-grid > * {
+    grid-column: 2;
+  }
+
+  @media (min-width: 720px) {
+    .section {
+      padding: var(--section-space-lg) 0;
+    }
+  }
+
+  @media (min-width: 960px) {
+    :root {
+      --container: min(1180px, calc(100vw - 4rem));
+    }
+  }
+</style>

@@ -1,0 +1,325 @@
+---
+import { mediaLibrary } from '../data/media';
+import { imageMeta, rooms } from '../data/content';
+import ResponsiveImage from './ResponsiveImage.astro';
+
+type ImageEntry = { asset: string; alt: string; ratio: string };
+type RoomEntry = {
+  tabLabel?: string;
+  title: string;
+  eyebrow: string;
+  description: string;
+  details?: string[];
+  imageKey: string;
+  imageSide: string;
+  secondaryImageKey?: string;
+};
+
+const imageCatalog = imageMeta as Record<string, ImageEntry>;
+const roomEntries = rooms as RoomEntry[];
+---
+
+<section class="section rooms-section" id="raeume">
+  <div class="container">
+    <div class="section-header">
+      <span class="eyebrow">Räume</span>
+      <h2>Die Wohnung lässt sich Raum für Raum erkunden.</h2>
+      <p>Die Tabs halten den Abschnitt kompakt und vermeiden unnötig lange Bildstrecken.</p>
+    </div>
+
+    <div class="rooms-tabs" data-rooms-tabs>
+      <div class="rooms-nav" role="tablist" aria-label="Räume">
+        {
+          roomEntries.map((room, index) => (
+            <button
+              type="button"
+              class:list={['room-tab', index === 0 && 'is-active']}
+              id={`room-tab-${index}`}
+              role="tab"
+              aria-selected={index === 0 ? 'true' : 'false'}
+              aria-controls={`room-panel-${index}`}
+              tabindex={index === 0 ? '0' : '-1'}
+              data-room-tab
+              data-index={index}
+            >
+              {room.tabLabel ?? room.title}
+            </button>
+          ))
+        }
+      </div>
+
+      <div class="rooms-panels">
+        {
+          roomEntries.map((room, index) => {
+            const primaryMeta = imageCatalog[room.imageKey];
+            const primaryImage = mediaLibrary[primaryMeta.asset];
+
+            return (
+              <article
+                class:list={['room-panel', index === 0 && 'is-active']}
+                id={`room-panel-${index}`}
+                role="tabpanel"
+                aria-labelledby={`room-tab-${index}`}
+                hidden={index !== 0}
+                data-room-panel
+                data-index={index}
+              >
+                <div class="room-copy">
+                  <div class="room-copy-inner">
+                    <span class="eyebrow">{room.eyebrow}</span>
+                    <h3>{room.title}</h3>
+                    <p>{room.description}</p>
+                    {
+                      room.details && (
+                        <ul class="room-details" aria-label={`${room.title} Details`}>
+                          {room.details.map((detail) => <li>{detail}</li>)}
+                        </ul>
+                      )
+                    }
+                  </div>
+                </div>
+
+                <div class="room-visual">
+                  <div class="room-image-frame">
+                    <ResponsiveImage
+                      src={primaryImage}
+                      alt={primaryMeta.alt}
+                      sizes="(min-width: 960px) 58vw, 100vw"
+                      class="room-image"
+                    />
+                  </div>
+                </div>
+              </article>
+            );
+          })
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-rooms-tabs]');
+
+  if (root) {
+    const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-room-tab]'));
+    const panels = Array.from(root.querySelectorAll<HTMLElement>('[data-room-panel]'));
+
+    const activateTab = (nextIndex: number) => {
+      const nextPanel = panels[nextIndex];
+
+      tabs.forEach((tab, index) => {
+        const isActive = index === nextIndex;
+        tab.classList.toggle('is-active', isActive);
+        tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        tab.tabIndex = isActive ? 0 : -1;
+      });
+
+      panels.forEach((panel, index) => {
+        const isActive = index === nextIndex;
+        panel.hidden = !isActive;
+        panel.classList.toggle('is-active', isActive);
+        panel.classList.remove('is-entering');
+      });
+
+      if (nextPanel) {
+        requestAnimationFrame(() => {
+          nextPanel.classList.add('is-entering');
+        });
+      }
+    };
+
+    tabs.forEach((tab, index) => {
+      tab.addEventListener('click', () => activateTab(index));
+
+      tab.addEventListener('keydown', (event) => {
+        if (!['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(event.key)) return;
+        event.preventDefault();
+
+        let nextIndex = index;
+        if (event.key === 'ArrowRight') nextIndex = (index + 1) % tabs.length;
+        if (event.key === 'ArrowLeft') nextIndex = (index - 1 + tabs.length) % tabs.length;
+        if (event.key === 'Home') nextIndex = 0;
+        if (event.key === 'End') nextIndex = tabs.length - 1;
+
+        activateTab(nextIndex);
+        tabs[nextIndex]?.focus();
+      });
+    });
+  }
+</script>
+
+<style>
+  .rooms-section {
+    background: #ece9e3;
+  }
+
+  .rooms-tabs {
+    padding-top: 0;
+  }
+
+  .rooms-nav {
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 1.25rem;
+  }
+
+  .rooms-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .room-tab {
+    flex: 0 0 auto;
+    padding: 0 1rem 0.95rem 0;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: var(--text-soft);
+    font-size: 0.84rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .room-tab + .room-tab {
+    margin-left: 1.25rem;
+  }
+
+  .room-tab.is-active {
+    color: var(--text);
+    border-bottom-color: var(--accent);
+  }
+
+  .room-tab:focus-visible {
+    outline: none;
+    color: var(--text);
+    border-bottom-color: var(--accent);
+  }
+
+  .room-panel {
+    display: grid;
+    gap: 1.25rem;
+    align-items: start;
+  }
+
+  .room-panel[hidden] {
+    display: none;
+  }
+
+  .room-panel.is-entering .room-copy-inner,
+  .room-panel.is-entering .room-image-frame {
+    animation: roomFadeUp 320ms ease both;
+  }
+
+  .room-panel.is-entering .room-image-frame {
+    animation-delay: 40ms;
+  }
+
+  .room-visual {
+    min-width: 0;
+  }
+
+  .room-image-frame {
+    position: relative;
+    overflow: hidden;
+    padding-bottom: 62.5%;
+  }
+
+  .room-image-frame :global(img.room-image) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .room-copy {
+    background: rgba(255, 255, 255, 0.45);
+    min-height: 100%;
+  }
+
+  .room-copy-inner {
+    display: grid;
+    gap: 0.8rem;
+    align-content: start;
+    padding: 1.5rem 1.4rem;
+  }
+
+  .room-copy h3 {
+    margin: 0;
+    font-size: clamp(1.6rem, 2.2vw, 2.2rem);
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+  }
+
+  .room-copy p {
+    margin: 0;
+    color: var(--text-soft);
+  }
+
+  .room-details {
+    list-style: none;
+    padding: 0;
+    margin: 0.15rem 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem 1.2rem;
+    color: var(--text-soft);
+    font-size: 0.88rem;
+  }
+
+  .room-details li {
+    position: relative;
+    padding-left: 0.8rem;
+  }
+
+  .room-details li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 0.28rem;
+    height: 0.28rem;
+    background: var(--accent);
+  }
+
+  @media (min-width: 960px) {
+    .rooms-tabs {
+      padding-top: 1.45rem;
+    }
+
+    .rooms-nav {
+      margin-bottom: 1.75rem;
+    }
+
+    .room-tab {
+      padding-bottom: 1.1rem;
+    }
+
+    .room-panel {
+      grid-template-columns: minmax(18rem, 0.66fr) minmax(0, 1.34fr);
+      gap: 2rem;
+      align-items: stretch;
+    }
+
+    .room-copy-inner {
+      height: 100%;
+      padding: 2rem 1.8rem;
+    }
+  }
+
+  @keyframes roomFadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>

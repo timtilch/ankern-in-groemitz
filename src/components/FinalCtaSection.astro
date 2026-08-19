@@ -1,0 +1,41 @@
+---
+import apartment from '../data/apartment.json';
+---
+
+<section class="section">
+  <div class="container final-cta">
+    <div>
+      <span class="eyebrow">Urlaub planen</span>
+      <h2>Wenn der Zeitraum passt, lässt sich der Aufenthalt direkt unverbindlich anfragen.</h2>
+    </div>
+
+    <div class="actions">
+      <a class="action-link" href="#verfuegbarkeit">Verfügbarkeit prüfen</a>
+      <a class="action-link" href={`tel:${apartment.contact.phone.replaceAll(' ', '')}`}>{apartment.contact.phone}</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .final-cta {
+    padding-top: 1.15rem;
+    display: grid;
+    gap: 1rem;
+    align-items: center;
+    border-top: 1px solid var(--line);
+  }
+
+  .final-cta h2 {
+    margin: 0.5rem 0 0;
+    font-family: inherit;
+    font-size: clamp(1.75rem, 3vw, 2.45rem);
+    line-height: 1.08;
+    font-weight: 700;
+  }
+
+  @media (min-width: 960px) {
+    .final-cta {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+  }
+</style>

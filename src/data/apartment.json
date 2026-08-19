@@ -1,0 +1,65 @@
+{
+  "name": "Ankern in Grömitz",
+  "location": "Grömitz, Schleswig-Holstein",
+  "region": "Lübecker Bucht",
+  "tagline": "Ruhige Tage zwischen Ostseeluft, Holzdetails und viel Licht.",
+  "shortDescription": "Eine helle Ferienwohnung für entspannte Auszeiten an der Ostsee – mit warmen Naturtönen, großzügigem Wohnbereich und kurzer Distanz zum Strand.",
+  "longDescription": "Ankern in Grömitz ist als moderner Rückzugsort für Paare, kleine Familien und Freunde gedacht, die Wert auf Ruhe, Qualität und einen unkomplizierten Aufenthalt legen. Große Fenster, natürliche Materialien, zurückhaltende Farben und ein offener Wohn-Essbereich schaffen eine Atmosphäre, die direkt nach Ankommen aussieht. Die Wohnung verbindet zeitgemäße Ausstattung mit einem wohnlichen Charakter und eignet sich sowohl für aktive Tage in der Umgebung als auch für entspannte Abende auf der Terrasse.",
+  "capacity": 4,
+  "bedrooms": 2,
+  "beds": 3,
+  "sizeSqm": 75,
+  "highlights": [
+    "Sonnige Terrasse mit Essplatz",
+    "Heller Wohnbereich mit offener Küche",
+    "Ruhige Lage mit kurzem Weg zur Promenade",
+    "Eigener Parkplatz direkt am Haus",
+    "WLAN und Smart-TV für entspannte Abende"
+  ],
+  "quickFacts": [
+    "WLAN",
+    "Terrasse",
+    "Parkplatz",
+    "Jalousien"
+  ],
+  "houseRules": {
+    "checkIn": "ab 15:00 Uhr",
+    "checkOut": "bis 10:00 Uhr",
+    "minimumStay": "3 Nächte",
+    "pets": "Haustiere auf Anfrage",
+    "parking": "1 privater Stellplatz inklusive",
+    "wifi": "Kostenloses WLAN in allen Räumen"
+  },
+  "contact": {
+    "hostName": "Katharina Jensen",
+    "phone": "+49 4562 123456",
+    "email": "hallo@ankern-groemitz.de",
+    "street": "Musterweg 8",
+    "postalCode": "23743",
+    "city": "Grömitz"
+  },
+  "host": {
+    "name": "Katharina Jensen",
+    "role": "Gastgeberin",
+    "bio": "Ich betreue die Wohnung persönlich und antworte in der Regel innerhalb eines Werktags. Mir ist wichtig, dass der Aufenthalt unkompliziert beginnt und sich vor Ort genauso ruhig anfühlt wie auf den Bildern.",
+    "imageKey": "host"
+  },
+  "imageKeys": {
+    "hero": "hero",
+    "living": "living",
+    "bedroom": "bedroom",
+    "kitchen": "kitchen",
+    "bathroom": "bathroom",
+    "outdoor": "outdoor",
+    "exterior": "exterior",
+    "surroundings": "surroundings"
+  },
+  "area": {
+    "intro": "Zwischen Promenade, Dünenwegen und weiten Feldern liegt die Wohnung so, dass Strandtage und ruhige Morgen gleichermaßen naheliegen. Grömitz ist lebendig genug für spontane Restaurantbesuche und gleichzeitig entspannt genug für eine echte Auszeit.",
+    "mapUrl": "https://maps.google.com/?q=Gr%C3%B6mitz"
+  },
+  "seo": {
+    "title": "Ankern in Grömitz | Ferienwohnung an der Ostsee",
+    "description": "Moderner One-Pager für eine hochwertige Ferienwohnung in Grömitz mit Wohnung, Ausstattung, Lage, Preisen und Verfügbarkeitsanfrage."
+  }
+}

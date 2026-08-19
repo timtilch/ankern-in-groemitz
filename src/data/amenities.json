@@ -1,0 +1,38 @@
+{
+  "Schlafen": [
+    "1 Schlafzimmer mit Doppelbett",
+    "1 Schlafzimmer mit zwei Einzelbetten",
+    "Verdunkelungsmöglichkeiten",
+    "Kleiderschränke und Ablageflächen"
+  ],
+  "Küche": [
+    "Voll ausgestattete Küche",
+    "Backofen und Induktionskochfeld",
+    "Geschirrspüler",
+    "Kaffeemaschine und Wasserkocher"
+  ],
+  "Badezimmer": [
+    "Tageslichtbad mit Dusche",
+    "Hochwertige Armaturen",
+    "Großer Spiegel",
+    "Stauraum für Reiseutensilien"
+  ],
+  "Außenbereich": [
+    "Private Terrasse",
+    "Essplatz im Freien",
+    "Bequeme Sitzgelegenheiten",
+    "Grünblick"
+  ],
+  "Technik": [
+    "Schnelles WLAN",
+    "Smart-TV",
+    "Bluetooth-Lautsprecher",
+    "USB-Lademöglichkeiten"
+  ],
+  "Sonstiges": [
+    "Waschmaschine",
+    "Eigener Parkplatz",
+    "Kontaktloser Check-in möglich",
+    "Nichtraucherwohnung"
+  ]
+}

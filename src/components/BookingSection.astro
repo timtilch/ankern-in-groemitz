@@ -1,0 +1,1008 @@
+---
+import apartment from '../data/apartment.json';
+import prices from '../data/prices.json';
+import availability from '../data/availability.json';
+import booking from '../data/booking.json';
+import { toIsoDate } from '../lib/date';
+
+const today = toIsoDate(new Date());
+const minimumStayNights = Number.parseInt(apartment.houseRules.minimumStay, 10) || 3;
+---
+
+<section class="section booking-section" id="verfuegbarkeit">
+  <div
+    class="container booking-widget"
+    data-seasons={JSON.stringify(prices)}
+    data-blocked={JSON.stringify(availability)}
+    data-today={today}
+    data-min-stay={minimumStayNights}
+    data-capacity={apartment.capacity}
+    data-phone={apartment.contact.phone}
+    data-email={apartment.contact.email}
+    data-addons={JSON.stringify(booking.addons)}
+  >
+    <div class="section-header booking-header">
+      <span class="eyebrow">Urlaub planen</span>
+      <h2>Wählen Sie Ihren gewünschten Reisezeitraum.</h2>
+      <p>Wir melden uns persönlich bei Ihnen zurück. Der geschätzte Preis wird bereits direkt beim Auswählen berechnet.</p>
+    </div>
+
+    <div class="booking-grid">
+      <section class="booking-summary">
+        <h3>Ihr Aufenthalt</h3>
+        <dl data-summary>
+          <div><dt>Anreise</dt><dd>-</dd></div>
+          <div><dt>Abreise</dt><dd>-</dd></div>
+          <div><dt>Nächte</dt><dd>-</dd></div>
+        </dl>
+        <div class="price-breakdown" data-breakdown></div>
+        <div class="addon-breakdown" data-addon-breakdown></div>
+        <div class="price-total">
+          <span>Geschätzter Gesamtpreis</span>
+          <strong data-total>Bitte Zeitraum wählen</strong>
+        </div>
+        <p>Unverbindliche Preisberechnung. Finale Konditionen werden nach Verfügbarkeitsprüfung mitgeteilt.</p>
+      </section>
+
+      <section class="calendar-shell">
+        <div class="calendar-head">
+          <div>
+            <strong>Verfügbarkeit</strong>
+            <p>Bitte zuerst Anreise und dann Abreise wählen.</p>
+          </div>
+          <div class="calendar-nav" aria-label="Monatsnavigation">
+            <button type="button" class="calendar-step" data-calendar-prev aria-label="Vorheriger Monat">←</button>
+            <button type="button" class="calendar-step" data-calendar-next aria-label="Nächster Monat">→</button>
+          </div>
+          <div class="calendar-legend" aria-label="Kalenderlegende">
+            <span><i class="legend-dot is-free"></i> verfügbar</span>
+            <span><i class="legend-dot is-blocked"></i> belegt</span>
+            <span><i class="legend-dot is-selected"></i> ausgewählt</span>
+          </div>
+        </div>
+        <div class="calendar-grid" data-calendar-grid></div>
+        <p class="calendar-message" data-calendar-message>
+          Mindestens {minimumStayNights} Nächte. Eine Auswahl über belegte Tage hinweg ist nicht möglich.
+        </p>
+      </section>
+
+      <form class="request-form" data-request-form id="request-form">
+          <h3>Ihre Anfrage</h3>
+          <input type="hidden" name="arrival" required />
+          <input type="hidden" name="departure" required />
+          <div class="form-grid">
+            <label>
+              <span>Personen</span>
+              <select name="guests" required>
+                {Array.from({ length: apartment.capacity }, (_, index) => <option value={index + 1}>{index + 1}</option>)}
+              </select>
+            </label>
+            <label>
+              <span>Name</span>
+              <input type="text" name="name" autocomplete="name" required />
+            </label>
+            <label>
+              <span>E-Mail</span>
+              <input type="email" name="email" autocomplete="email" required />
+            </label>
+            <label>
+              <span>Telefon</span>
+              <input type="tel" name="phone" autocomplete="tel" />
+            </label>
+            <label class="full">
+              <span>Nachricht</span>
+              <textarea name="message" rows="4" placeholder="Reiseanlass, gewünschte Schlafaufteilung oder offene Fragen."></textarea>
+            </label>
+            <fieldset class="full addon-fieldset">
+              <legend>Zusatzoptionen</legend>
+              {
+                booking.addons.map((addon) => (
+                  <label class="addon-option">
+                    <input type="checkbox" name={`addon-${addon.id}`} value={addon.id} />
+                    <span>
+                      <strong>{addon.label}</strong>
+                      <small>{addon.description} · {addon.pricePerGuest} € pro Person</small>
+                    </span>
+                  </label>
+                ))
+              }
+            </fieldset>
+            <label class="full checkbox">
+              <input type="checkbox" name="privacy" required />
+              <span>Ich habe die Datenschutzhinweise gelesen und stimme der Verarbeitung meiner Anfrage zu.</span>
+            </label>
+          </div>
+          <button class="button" type="submit">Unverbindlich anfragen</button>
+          <p class="form-note" data-form-note>Noch ohne Versandlogik. Die Komponente ist so vorbereitet, dass Kalender- und Mail-Anbindung später ergänzt werden können.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<script>
+  type Season = {
+    from: string;
+    to: string;
+    pricePerNight: number;
+    label: string;
+  };
+
+  type BlockedRange = {
+    from: string;
+    to: string;
+  };
+
+  type PriceBreakdown = {
+    label: string;
+    nights: number;
+    pricePerNight: number;
+  };
+
+  type Addon = {
+    id: string;
+    label: string;
+    description: string;
+    pricePerGuest: number;
+  };
+
+  const root = document.querySelector<HTMLElement>('.booking-widget');
+
+  if (root) {
+    const seasons: Season[] = JSON.parse(root.dataset.seasons ?? '[]');
+    const blockedRanges: BlockedRange[] = JSON.parse(root.dataset.blocked ?? '[]');
+    const addons: Addon[] = JSON.parse(root.dataset.addons ?? '[]');
+    const today = root.dataset.today ?? '';
+    const minimumStay = Number(root.dataset.minStay ?? 3);
+    const capacity = Number(root.dataset.capacity ?? 4);
+    const grid = root.querySelector<HTMLElement>('[data-calendar-grid]');
+    const message = root.querySelector<HTMLElement>('[data-calendar-message]');
+    const prevButton = root.querySelector<HTMLButtonElement>('[data-calendar-prev]');
+    const nextButton = root.querySelector<HTMLButtonElement>('[data-calendar-next]');
+    const summary = root.querySelector<HTMLElement>('[data-summary]');
+    const breakdown = root.querySelector<HTMLElement>('[data-breakdown]');
+    const addonBreakdown = root.querySelector<HTMLElement>('[data-addon-breakdown]');
+    const total = root.querySelector<HTMLElement>('[data-total]');
+    const form = root.querySelector<HTMLFormElement>('[data-request-form]');
+    const formNote = root.querySelector<HTMLElement>('[data-form-note]');
+    const arrivalInput = form?.elements.namedItem('arrival');
+    const departureInput = form?.elements.namedItem('departure');
+    const guestInput = form?.elements.namedItem('guests');
+    const addonInputs = Array.from(form?.querySelectorAll<HTMLInputElement>('.addon-option input') ?? []);
+
+    const formatDate = (value: string) =>
+      new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(`${value}T00:00:00`));
+
+    const monthLabel = (date: Date) =>
+      new Intl.DateTimeFormat('de-DE', { month: 'long', year: 'numeric' }).format(date);
+
+    const toIsoDate = (date: Date) => {
+      const year = date.getFullYear();
+      const month = `${date.getMonth() + 1}`.padStart(2, '0');
+      const day = `${date.getDate()}`.padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
+    const addDays = (date: Date, amount: number) => {
+      const next = new Date(date);
+      next.setDate(next.getDate() + amount);
+      return next;
+    };
+
+    const nightsBetween = (start: string, end: string) =>
+      Math.round((new Date(`${end}T00:00:00`).getTime() - new Date(`${start}T00:00:00`).getTime()) / (24 * 60 * 60 * 1000));
+
+    const eachNight = (start: string, end: string) => {
+      const nights = nightsBetween(start, end);
+      return Array.from({ length: nights }, (_, index) => toIsoDate(addDays(new Date(`${start}T00:00:00`), index)));
+    };
+
+    const isBlocked = (date: string) =>
+      blockedRanges.some((range: BlockedRange) => date >= range.from && date <= range.to);
+
+    const crossesBlocked = (start: string, end: string) =>
+      eachNight(start, end).some((night) => isBlocked(night));
+
+    const getSeason = (date: string) => seasons.find((season: Season) => date >= season.from && date <= season.to);
+
+    const getAddonTotal = () => {
+      const guests = guestInput instanceof HTMLSelectElement ? Number(guestInput.value) : 1;
+
+      return addonInputs
+        .filter((input) => input.checked)
+        .map((input) => {
+          const addon = addons.find((entry: Addon) => entry.id === input.value);
+          if (!addon) return null;
+          return {
+            label: addon.label,
+            qty: guests,
+            pricePerGuest: addon.pricePerGuest,
+            total: guests * addon.pricePerGuest
+          };
+        })
+        .filter(Boolean);
+    };
+
+    const calculatePrice = (start: string, end: string) => {
+      const grouped = new Map<string, PriceBreakdown>();
+      let totalPrice = 0;
+
+      eachNight(start, end).forEach((night) => {
+        const season = getSeason(night);
+        if (!season) return;
+        totalPrice += season.pricePerNight;
+        const current = grouped.get(season.label);
+        if (current) {
+          current.nights += 1;
+        } else {
+          grouped.set(season.label, { label: season.label, nights: 1, pricePerNight: season.pricePerNight });
+        }
+      });
+
+      return {
+        totalPrice,
+        breakdown: [...grouped.values()]
+      };
+    };
+
+    const createMonthMatrix = (monthDate: Date) => {
+      const first = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+      const last = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
+      const leadingOffset = (first.getDay() + 6) % 7;
+      const totalDays = last.getDate();
+      const cells: Array<string | null> = [];
+
+      for (let index = 0; index < leadingOffset; index += 1) {
+        cells.push(null);
+      }
+
+      for (let day = 1; day <= totalDays; day += 1) {
+        cells.push(toIsoDate(new Date(monthDate.getFullYear(), monthDate.getMonth(), day)));
+      }
+
+      while (cells.length % 7 !== 0) {
+        cells.push(null);
+      }
+
+      return Array.from({ length: cells.length / 7 }, (_, index) => cells.slice(index * 7, index * 7 + 7));
+    };
+
+    const state = {
+      arrival: '',
+      departure: '',
+      visibleMonth: new Date(`${today}T00:00:00`)
+    };
+
+    const updateSummary = () => {
+      if (!summary || !breakdown || !addonBreakdown || !total) return;
+      const values = summary.querySelectorAll('dd');
+      const hasSelection = Boolean(state.arrival && state.departure);
+      const addonItems = getAddonTotal();
+      const addonTotal = addonItems.reduce((sum, item) => sum + (item?.total ?? 0), 0);
+
+      if (!hasSelection) {
+        values[0].textContent = state.arrival ? formatDate(state.arrival) : '-';
+        values[1].textContent = state.departure ? formatDate(state.departure) : '-';
+        values[2].textContent = '-';
+        breakdown.innerHTML = '';
+        addonBreakdown.innerHTML = addonItems
+          .map((item) => `<div><span>${item?.label}</span><strong>${item?.qty} × ${item?.pricePerGuest} €</strong></div>`)
+          .join('');
+        total.textContent = 'Bitte Zeitraum wählen';
+        return;
+      }
+
+      const price = calculatePrice(state.arrival, state.departure);
+      values[0].textContent = formatDate(state.arrival);
+      values[1].textContent = formatDate(state.departure);
+      values[2].textContent = `${nightsBetween(state.arrival, state.departure)} Nächte`;
+      breakdown.innerHTML = price.breakdown
+        .map((item) => `<div><span>${item.label}</span><strong>${item.nights} × ${item.pricePerNight} €</strong></div>`)
+        .join('');
+      addonBreakdown.innerHTML = addonItems
+        .map((item) => `<div><span>${item?.label}</span><strong>${item?.qty} × ${item?.pricePerGuest} €</strong></div>`)
+        .join('');
+      total.textContent = `${price.totalPrice + addonTotal} €`;
+    };
+
+    const syncForm = () => {
+      if (arrivalInput instanceof HTMLInputElement) arrivalInput.value = state.arrival;
+      if (departureInput instanceof HTMLInputElement) departureInput.value = state.departure;
+      if (guestInput instanceof HTMLSelectElement && Number(guestInput.value) > capacity) {
+        guestInput.value = String(capacity);
+      }
+    };
+
+    const setMessage = (text: string) => {
+      if (message) message.textContent = text;
+    };
+
+    const render = () => {
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      const currentMonth = new Date(state.visibleMonth);
+      const monthCount = window.innerWidth >= 960 ? 2 : 1;
+      const weekdayLabels = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+
+      for (let monthOffset = 0; monthOffset < monthCount; monthOffset += 1) {
+        const monthDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + monthOffset, 1);
+        const matrix = createMonthMatrix(monthDate);
+        const monthEl = document.createElement('section');
+        monthEl.className = 'month-card';
+        monthEl.innerHTML = `<header><h3>${monthLabel(monthDate)}</h3></header>`;
+
+        const weekdayRow = document.createElement('div');
+        weekdayRow.className = 'weekday-row';
+        weekdayLabels.forEach((label) => {
+          const cell = document.createElement('span');
+          cell.textContent = label;
+          weekdayRow.append(cell);
+        });
+        monthEl.append(weekdayRow);
+
+        const dates = document.createElement('div');
+        dates.className = 'dates-grid';
+
+        matrix.flat().forEach((date) => {
+          if (!date) {
+            const spacer = document.createElement('span');
+            spacer.className = 'day-spacer';
+            spacer.setAttribute('aria-hidden', 'true');
+            dates.append(spacer);
+            return;
+          }
+
+          const button = document.createElement('button');
+          const day = Number(date.slice(-2));
+          const past = date < today;
+          const blocked = isBlocked(date);
+          const season = getSeason(date);
+          const nightlyRate = !past && !blocked ? season?.pricePerNight ?? null : null;
+          const selected = Boolean(state.arrival && state.departure && date >= state.arrival && date < state.departure);
+          const arrival = state.arrival === date;
+          const departure = state.departure === date;
+
+          button.type = 'button';
+          button.className = 'day-button';
+          button.dataset.date = date;
+          if (date === today) button.dataset.today = 'true';
+          button.innerHTML = `
+            <span class="day-top">
+              <span class="day-number">${day}</span>
+              ${nightlyRate ? `<small class="day-rate">${nightlyRate}€</small>` : ''}
+            </span>
+          `;
+          button.disabled = past || blocked;
+          button.classList.toggle('is-blocked', blocked);
+          button.classList.toggle('is-selected', selected);
+          button.classList.toggle('is-arrival', arrival);
+          button.classList.toggle('is-departure', departure);
+          button.classList.toggle('has-rate', Boolean(nightlyRate));
+
+          if (!past && !blocked) {
+            button.addEventListener('click', () => {
+              if (!state.arrival || (state.arrival && state.departure)) {
+                state.arrival = date;
+                state.departure = '';
+                setMessage('Anreise gewählt. Bitte jetzt eine Abreise auswählen.');
+              } else if (date <= state.arrival) {
+                state.arrival = date;
+                state.departure = '';
+                setMessage('Die Anreise wurde aktualisiert. Bitte eine spätere Abreise wählen.');
+              } else if (nightsBetween(state.arrival, date) < minimumStay) {
+                setMessage(`Der Mindestaufenthalt beträgt ${minimumStay} Nächte.`);
+                return;
+              } else if (crossesBlocked(state.arrival, date)) {
+                setMessage('Dieser Zeitraum ist nicht durchgehend verfügbar.');
+                return;
+              } else {
+                state.departure = date;
+                setMessage('Zeitraum gewählt. Sie können die unverbindliche Anfrage jetzt ausfüllen.');
+              }
+
+              syncForm();
+              updateSummary();
+              render();
+            });
+          }
+
+          dates.append(button);
+        });
+
+        monthEl.append(dates);
+        grid.append(monthEl);
+      }
+    };
+
+    form?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (formNote) {
+        formNote.textContent = `Mock-Anfrage vorbereitet für ${state.arrival ? formatDate(state.arrival) : 'offenen Zeitraum'} bis ${state.departure ? formatDate(state.departure) : 'offen'}. Echte Übermittlung folgt später über Mail-/Kalender-Anbindung.`;
+      }
+    });
+
+    if (guestInput instanceof HTMLSelectElement) {
+      guestInput.addEventListener('change', () => updateSummary());
+    }
+    addonInputs.forEach((input) => input.addEventListener('change', () => updateSummary()));
+
+    prevButton?.addEventListener('click', () => {
+      state.visibleMonth = new Date(state.visibleMonth.getFullYear(), state.visibleMonth.getMonth() - 1, 1);
+      const earliestMonth = new Date(new Date(`${today}T00:00:00`).getFullYear(), new Date(`${today}T00:00:00`).getMonth(), 1);
+      if (state.visibleMonth < earliestMonth) {
+        state.visibleMonth = earliestMonth;
+      }
+      render();
+    });
+
+    nextButton?.addEventListener('click', () => {
+      state.visibleMonth = new Date(state.visibleMonth.getFullYear(), state.visibleMonth.getMonth() + 1, 1);
+      render();
+    });
+
+    window.addEventListener('resize', () => {
+      render();
+    });
+
+    syncForm();
+    updateSummary();
+    render();
+  }
+</script>
+
+<style>
+  .booking-section {
+    background: #f1ede6;
+  }
+
+  .booking-grid {
+    display: grid;
+    gap: 2.25rem;
+    padding-top: 0;
+  }
+
+  .calendar-shell,
+  .booking-summary,
+  .request-form {
+    padding: 0;
+  }
+
+  .calendar-head {
+    display: grid;
+    gap: 0.9rem;
+    margin-bottom: 0.55rem;
+  }
+
+  .calendar-head strong,
+  .calendar-head p,
+  .booking-summary h3,
+  .request-form h3 {
+    margin: 0;
+  }
+
+  .calendar-head strong,
+  .booking-summary h3,
+  .request-form h3 {
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .calendar-head p,
+  .booking-summary p,
+  .form-note {
+    color: var(--text-soft);
+  }
+
+  .calendar-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1rem;
+    font-size: 0.78rem;
+    color: var(--text-soft);
+  }
+
+  .calendar-nav {
+    display: flex;
+    gap: 0.4rem;
+    align-self: start;
+    margin-top: 0.1rem;
+  }
+
+  .calendar-step {
+    width: 2.2rem;
+    height: 2.2rem;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--text);
+    padding: 0;
+  }
+
+  .calendar-step:hover,
+  .calendar-step:focus-visible {
+    border-color: var(--accent);
+    color: var(--accent);
+    outline: none;
+  }
+
+  .calendar-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .legend-dot {
+    width: 0.72rem;
+    height: 0.72rem;
+    background: transparent;
+    border: 1px solid var(--line-strong);
+  }
+
+  .legend-dot.is-blocked {
+    background: rgba(18, 21, 21, 0.16);
+  }
+
+  .legend-dot.is-selected {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .calendar-grid {
+    display: grid;
+    gap: 1rem;
+    margin-top: 0.95rem;
+    max-width: 49rem;
+  }
+
+  :global(.month-card) {
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  :global(.month-card h3) {
+    margin: 0 0 0.8rem;
+    text-transform: capitalize;
+    font-size: 1.34rem;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    text-align: center;
+  }
+
+  :global(.weekday-row),
+  :global(.dates-grid) {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 0.24rem;
+  }
+
+  :global(.weekday-row) {
+    margin-bottom: 0.18rem;
+    color: var(--text-soft);
+    font-size: 0.72rem;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  :global(.weekday-row span) {
+    padding: 0 0 0.3rem;
+    text-align: center;
+  }
+
+  :global(.day-button) {
+    aspect-ratio: 0.78 / 1;
+    border: 1px solid rgba(25, 31, 30, 0.08);
+    appearance: none;
+    -webkit-appearance: none;
+    border-radius: 0;
+    box-shadow: none;
+    background: rgba(255, 255, 255, 0.48);
+    color: var(--text);
+    padding: 0.08rem 0.04rem;
+    position: relative;
+    isolation: isolate;
+    overflow: visible;
+    font-size: 0.62rem;
+    text-align: center;
+    transition: background-color 180ms ease, color 180ms ease, transform 180ms ease, border-color 180ms ease;
+  }
+
+  :global(.day-button::after) {
+    content: none;
+  }
+
+  :global(.day-top) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.14rem;
+    width: 100%;
+    min-height: 100%;
+    flex-direction: column;
+    position: relative;
+    z-index: 1;
+  }
+
+  :global(.day-spacer) {
+    aspect-ratio: 0.78 / 1;
+  }
+
+  :global(.day-button.is-blocked) {
+    background: rgba(18, 21, 21, 0.035);
+    border-color: rgba(25, 31, 30, 0.05);
+    color: rgba(23, 27, 26, 0.46);
+  }
+
+  :global(.day-number) {
+    display: block;
+    font-weight: 500;
+    line-height: 1;
+    font-size: 1.06rem;
+    letter-spacing: -0.04em;
+    text-align: center;
+  }
+
+  :global(.day-rate) {
+    display: inline-block;
+    padding: 0;
+    font-size: 0.67rem;
+    color: var(--accent);
+    background: transparent;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    white-space: nowrap;
+    margin-top: 0;
+    text-align: center;
+  }
+
+  :global(.day-button.is-arrival::before),
+  :global(.day-button.is-departure::before),
+  :global(.day-button[data-today='true']::before) {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0.18rem;
+    width: 0.2rem;
+    height: 0.2rem;
+    margin-left: -0.1rem;
+    background: currentColor;
+  }
+
+  :global(.day-button.is-arrival .day-rate),
+  :global(.day-button.is-departure .day-rate),
+  :global(.day-button.is-selected .day-rate) {
+    color: inherit;
+  }
+
+  :global(.day-button.is-selected) {
+    background: rgba(var(--accent-rgb), 0.18);
+    border-color: rgba(var(--accent-rgb), 0.26);
+    color: var(--text);
+  }
+
+  :global(.day-button.is-arrival),
+  :global(.day-button.is-departure) {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+
+  :global(.day-button.is-arrival .day-rate),
+  :global(.day-button.is-departure .day-rate) {
+    color: rgba(255, 255, 255, 0.82);
+  }
+
+  :global(.day-button:not(:disabled):not(.is-selected):not(.is-arrival):not(.is-departure):hover),
+  :global(.day-button:not(:disabled):not(.is-selected):not(.is-arrival):not(.is-departure):focus-visible) {
+    background: rgba(var(--accent-rgb), 0.08);
+    border-color: rgba(var(--accent-rgb), 0.18);
+    outline: none;
+    transform: translateY(-1px);
+  }
+
+  :global(.day-button.is-selected:hover),
+  :global(.day-button.is-selected:focus-visible) {
+    background: rgba(var(--accent-rgb), 0.18);
+    border-color: rgba(var(--accent-rgb), 0.26);
+    transform: none;
+  }
+
+  :global(.day-button.is-arrival:hover),
+  :global(.day-button.is-arrival:focus-visible),
+  :global(.day-button.is-departure:hover),
+  :global(.day-button.is-departure:focus-visible) {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+    transform: none;
+  }
+
+  :global(.day-button.is-blocked .day-rate) {
+    display: none;
+  }
+
+  :global(.day-button.is-blocked .day-number) {
+    text-decoration: line-through;
+    text-decoration-thickness: 1px;
+  }
+
+  :global(.day-button:disabled) {
+    cursor: default;
+  }
+
+  .calendar-message {
+    margin: 0.95rem 0 0;
+    color: var(--text-soft);
+    font-size: 0.92rem;
+  }
+
+  .booking-summary {
+    border-top: 0;
+    padding-top: 0;
+    display: grid;
+    gap: 1rem;
+    align-content: start;
+  }
+
+  .booking-summary dl {
+    margin: 0;
+    display: grid;
+    gap: 0.7rem;
+  }
+
+  .booking-summary dl div,
+  .price-breakdown :global(div) {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .price-breakdown {
+    display: grid;
+    gap: 0.45rem;
+    color: var(--text-soft);
+    font-size: 0.92rem;
+  }
+
+  .addon-breakdown {
+    display: grid;
+    gap: 0.4rem;
+    margin-bottom: 0.9rem;
+    color: var(--text-soft);
+    font-size: 0.92rem;
+  }
+
+  .addon-breakdown :global(div) {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .addon-breakdown:empty {
+    display: none;
+  }
+
+  .price-total {
+    padding-top: 0;
+    border-top: 0;
+    margin-top: 0.35rem;
+    display: grid;
+    gap: 0.35rem;
+    justify-items: start;
+  }
+
+  .price-total span {
+    color: var(--text-soft);
+  }
+
+  .price-total strong {
+    font-size: 1.55rem;
+    font-family: inherit;
+    font-weight: 700;
+    line-height: 1.1;
+    text-align: left;
+  }
+
+  .request-form {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  .form-grid {
+    display: grid;
+    gap: 0.85rem;
+    margin: 1rem 0;
+  }
+
+  .form-grid label {
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  .form-grid label > span {
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .form-grid input,
+  .form-grid select,
+  .form-grid textarea {
+    width: 100%;
+    padding: 0.8rem 0.85rem;
+    border: 0;
+    border-bottom: 1px solid var(--line-strong);
+    background: #fff;
+    color: var(--text);
+    border-radius: 0;
+  }
+
+  .form-grid select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+    background-position: calc(100% - 1rem) calc(50% - 0.15rem), calc(100% - 0.75rem) calc(50% - 0.15rem);
+    background-size: 0.32rem 0.32rem, 0.32rem 0.32rem;
+    background-repeat: no-repeat;
+  }
+
+  .form-grid .full {
+    grid-column: 1 / -1;
+  }
+
+  .addon-fieldset {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .addon-fieldset legend {
+    padding: 0;
+    margin-bottom: 0.15rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .addon-option {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.8rem;
+    align-items: start;
+    padding: 0.85rem 0.9rem;
+    border: 1px solid var(--line);
+    background: var(--surface-alt);
+  }
+
+  .addon-option input {
+    width: 1rem;
+    height: 1rem;
+    margin-top: 0.15rem;
+    padding: 0;
+    border: 1px solid var(--line-strong);
+  }
+
+  .addon-option strong,
+  .addon-option small {
+    display: block;
+  }
+
+  .addon-option small {
+    color: var(--text-soft);
+    margin-top: 0.2rem;
+  }
+
+  .checkbox {
+    grid-template-columns: auto 1fr;
+    align-items: start;
+  }
+
+  .checkbox input {
+    width: 1rem;
+    height: 1rem;
+    margin-top: 0.2rem;
+    padding: 0;
+    border: 1px solid var(--line-strong);
+  }
+
+  .request-form .button {
+    justify-self: start;
+    cursor: pointer;
+  }
+
+  .request-form input[type='hidden'] {
+    display: none;
+  }
+
+  .booking-summary dd,
+  .booking-summary dt {
+    margin: 0;
+  }
+
+  .booking-summary dt {
+    color: var(--text-soft);
+  }
+
+  @media (min-width: 960px) {
+    .booking-grid {
+      grid-template-columns: minmax(16rem, 0.72fr) minmax(0, 1.45fr);
+      grid-template-areas:
+        'summary calendar'
+        'summary form';
+      align-items: start;
+      gap: 2.75rem;
+    }
+
+    .booking-summary {
+      grid-area: summary;
+      position: sticky;
+      top: 1.5rem;
+    }
+
+    .calendar-shell {
+      grid-area: calendar;
+      width: 100%;
+      max-width: none;
+    }
+
+    .calendar-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      width: 100%;
+      max-width: none;
+      gap: 1.2rem;
+    }
+
+    .calendar-head {
+      grid-template-columns: 1fr auto;
+      align-items: start;
+    }
+
+    .calendar-legend {
+      grid-column: 1;
+      grid-row: 2;
+    }
+
+    .calendar-nav {
+      grid-column: 2;
+      grid-row: 2;
+      align-self: start;
+    }
+
+    .request-form {
+      grid-area: form;
+      width: 100%;
+      min-width: 0;
+    }
+
+    :global(.month-card h3) {
+      font-size: 1.18rem;
+    }
+
+    :global(.weekday-row) {
+      font-size: 0.68rem;
+    }
+
+    :global(.day-button) {
+      aspect-ratio: 0.78 / 1;
+      font-size: 0.58rem;
+    }
+
+    :global(.day-spacer) {
+      aspect-ratio: 0.78 / 1;
+    }
+
+    :global(.day-number) {
+      font-size: 0.98rem;
+    }
+
+    :global(.day-rate) {
+      font-size: 0.62rem;
+    }
+
+    .form-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

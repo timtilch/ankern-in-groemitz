@@ -1,0 +1,37 @@
+---
+import BaseLayout from '../components/BaseLayout.astro';
+import { legal } from '../data/content';
+---
+
+<BaseLayout title="Datenschutz | Ankern in Grömitz" pathname="/datenschutz">
+  <main id="content" class="page-shell">
+    <section class="section">
+      <div class="container legal-sheet">
+        <span class="eyebrow">Datenschutz</span>
+        <h1>Datenschutz</h1>
+        <p><strong>Mock-/TODO-Inhalt:</strong> {legal.privacyNote}</p>
+        <p>Vor Livegang muss die tatsächliche Datenverarbeitung rechtlich geprüft und vollständig dokumentiert werden.</p>
+      </div>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .legal-sheet {
+    border-top: 1px solid var(--line);
+    padding-top: 1.5rem;
+  }
+
+  .legal-sheet h1 {
+    font-family: 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Georgia, serif;
+    font-size: clamp(2.8rem, 7vw, 5rem);
+    line-height: 0.92;
+    margin: 0.75rem 0 1rem;
+  }
+
+  .legal-sheet p {
+    margin: 0 0 1rem;
+    color: var(--text-soft);
+    max-width: 42rem;
+  }
+</style>

@@ -1,0 +1,136 @@
+---
+import apartment from '../data/apartment.json';
+import { getDisplayedPriceRange, getSeasonTable } from '../lib/pricing';
+
+const seasonTable = getSeasonTable();
+const priceRange = getDisplayedPriceRange();
+---
+
+<section class="section" id="preise">
+  <div class="container pricing-grid">
+    <div>
+      <div class="section-header">
+        <span class="eyebrow">Preise</span>
+        <h2>Preise transparent und bereits tageweise korrekt berechnet.</h2>
+        <p>Wenn ein Aufenthalt Saisongrenzen überschreitet, wird jede Nacht automatisch dem passenden Zeitraum zugeordnet.</p>
+      </div>
+
+      <p class="price-hint">
+        Aktuell ab <strong>{priceRange.min} €</strong> bis <strong>{priceRange.max} €</strong> pro Nacht.
+      </p>
+    </div>
+
+    <div class="price-table-wrap">
+      <table class="price-table">
+        <caption class="sr-only">Saisonpreise</caption>
+        <thead>
+          <tr>
+            <th>Saison</th>
+            <th>Zeitraum</th>
+            <th>Preis / Nacht</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            seasonTable.map((season) => (
+              <tr>
+                <td>{season.label}</td>
+                <td>{season.fromLabel} bis {season.toLabel}</td>
+                <td>{season.pricePerNight} €</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+
+      <div class="price-note">
+        <p>Preisauskunft unverbindlich. Nebenkosten, Kurabgabe und finale Konditionen werden später mit den echten Vermietungsdaten ergänzt.</p>
+        <div class="house-rules">
+          <span>{apartment.houseRules.minimumStay}</span>
+          <span>{apartment.houseRules.checkIn}</span>
+          <span>{apartment.houseRules.checkOut}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .pricing-grid {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .price-hint {
+    margin: 0;
+    color: var(--text-soft);
+  }
+
+  .price-hint strong {
+    color: var(--text);
+    font-family: inherit;
+    font-weight: 700;
+  }
+
+  .price-table-wrap {
+    overflow: hidden;
+    border-top: 1px solid var(--line);
+  }
+
+  .price-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .price-table th,
+  .price-table td {
+    padding: 0.95rem 0.2rem;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .price-table th {
+    background: transparent;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 0.74rem;
+  }
+
+  .price-note {
+    display: grid;
+    gap: 0.9rem;
+    padding: 1.1rem 0 0;
+  }
+
+  .price-note p {
+    margin: 0;
+    color: var(--text-soft);
+  }
+
+  .house-rules {
+    display: grid;
+    gap: 0.35rem;
+    color: var(--text-soft);
+  }
+
+  @media (min-width: 960px) {
+    .pricing-grid {
+      grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
+      align-items: start;
+      gap: 2.5rem;
+    }
+  }
+</style>

@@ -1,0 +1,26 @@
+---
+import BaseLayout from '../components/BaseLayout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import HeroSection from '../components/HeroSection.astro';
+import QuickFactsSection from '../components/QuickFactsSection.astro';
+import ApartmentSection from '../components/ApartmentSection.astro';
+import GallerySection from '../components/GallerySection.astro';
+import LocationSection from '../components/LocationSection.astro';
+import BookingSection from '../components/BookingSection.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+---
+
+<BaseLayout>
+  <div class="page-shell">
+    <SiteHeader />
+    <main id="content">
+      <HeroSection />
+      <QuickFactsSection />
+      <ApartmentSection />
+      <GallerySection />
+      <LocationSection />
+      <BookingSection />
+    </main>
+    <SiteFooter />
+  </div>
+</BaseLayout>

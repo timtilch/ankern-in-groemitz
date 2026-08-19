@@ -1,0 +1,273 @@
+---
+import apartment from '../data/apartment.json';
+
+const links = [
+  ['Wohnung', '#wohnung'],
+  ['Räume', '#raeume'],
+  ['Galerie', '#galerie'],
+  ['Umgebung', '#umgebung'],
+  ['Verfügbarkeit', '#verfuegbarkeit'],
+];
+---
+
+<header class="site-header is-visible">
+  <div class="container header-inner">
+    <a class="brand" href="#top" aria-label={`${apartment.name} Startseite`}>
+      <span>
+        <strong>{apartment.name}</strong>
+        <small>{apartment.region}</small>
+      </span>
+    </a>
+
+    <nav class="desktop-nav" aria-label="Hauptnavigation">
+      <ul>
+        {
+          links.map(([label, href]) => (
+            <li><a href={href}>{label}</a></li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <a class="action-link header-cta" href="#verfuegbarkeit">Anfragen</a>
+
+    <details class="mobile-nav">
+      <summary aria-label="Menü öffnen">
+        <span></span>
+        <span></span>
+        <span></span>
+      </summary>
+      <nav aria-label="Mobile Navigation">
+        <ul>
+          {
+            links.map(([label, href]) => (
+              <li><a href={href}>{label}</a></li>
+            ))
+          }
+        </ul>
+        <a class="action-link" href="#verfuegbarkeit">Anfragen</a>
+      </nav>
+    </details>
+  </div>
+</header>
+
+<script>
+  const header = document.querySelector<HTMLElement>('.site-header');
+
+  if (header) {
+    let lastY = window.scrollY;
+    let ticking = false;
+
+    const syncHeader = () => {
+      const currentY = window.scrollY;
+      const scrollingDown = currentY > lastY + 8;
+      const scrollingUp = currentY < lastY - 8;
+      const beyondHero = currentY > 120;
+
+      header.classList.toggle('is-fixed', beyondHero);
+      header.classList.toggle('is-hidden', beyondHero && scrollingDown);
+      header.classList.toggle('is-visible', !beyondHero || scrollingUp);
+
+      lastY = currentY;
+      ticking = false;
+    };
+
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(syncHeader);
+    };
+
+    syncHeader();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('load', syncHeader);
+  }
+</script>
+
+<style>
+  .site-header {
+    position: fixed !important;
+    inset: 0 0 auto;
+    z-index: 20;
+    display: flex;
+    justify-content: center;
+    padding-top: 1.25rem;
+    transition: transform 220ms ease, opacity 220ms ease, padding 220ms ease;
+    will-change: transform, opacity;
+  }
+
+  .site-header.is-hidden {
+    transform: translateY(-110%);
+    opacity: 0;
+  }
+
+  .site-header.is-visible {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .header-inner {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    align-items: center;
+    gap: 1rem;
+    width: min(1240px, calc(100vw - 2rem));
+    max-width: 1240px;
+    min-height: 5rem;
+    padding: 0 1.2rem;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(18px) saturate(135%);
+    -webkit-backdrop-filter: blur(18px) saturate(135%);
+    transition: min-height 220ms ease, background-color 220ms ease, box-shadow 220ms ease;
+  }
+
+  .site-header.is-fixed .header-inner {
+    background: rgba(255, 255, 255, 0.82);
+    box-shadow: 0 10px 30px rgba(16, 20, 20, 0.08);
+  }
+
+  .brand {
+    display: inline-flex;
+    text-decoration: none;
+  }
+
+  .brand strong,
+  .brand small {
+    display: block;
+  }
+
+  .brand strong {
+    font-size: 1.02rem;
+    letter-spacing: -0.02em;
+  }
+
+  .brand small {
+    color: var(--text-soft);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-top: 0.18rem;
+  }
+
+  .desktop-nav {
+    display: none;
+  }
+
+  .desktop-nav ul,
+  .mobile-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .mobile-nav {
+    margin-left: auto;
+  }
+
+  .mobile-nav summary {
+    list-style: none;
+    display: grid;
+    gap: 0.28rem;
+    cursor: pointer;
+    padding: 0.35rem 0;
+  }
+
+  .mobile-nav summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .mobile-nav summary span {
+    width: 1.25rem;
+    height: 2px;
+    background: var(--text);
+    border-radius: 999px;
+  }
+
+  .mobile-nav nav {
+    position: absolute;
+    top: calc(100% + 0.25rem);
+    right: 0;
+    width: min(19rem, calc(100vw - 2rem));
+    padding: 1rem 0;
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(18px) saturate(140%);
+  }
+
+  .mobile-nav li + li {
+    margin-top: 0.2rem;
+  }
+
+  .mobile-nav a {
+    display: block;
+    padding: 0.55rem 1rem;
+    text-decoration: none;
+  }
+
+  .mobile-nav .action-link {
+    margin: 0.8rem 1rem 0;
+  }
+
+  .mobile-nav .button {
+    width: 100%;
+    margin-top: 1rem;
+  }
+
+  .header-cta {
+    display: none;
+  }
+
+  @media (min-width: 960px) {
+    .header-inner {
+      grid-template-columns: auto 1fr auto;
+      gap: 2rem;
+      width: min(1240px, calc(100vw - 2rem));
+      min-height: 5.35rem;
+      padding: 0 1.6rem;
+    }
+
+    .site-header.is-fixed {
+      padding-top: 0.7rem;
+    }
+
+    .site-header.is-fixed .header-inner {
+      min-height: 4.7rem;
+    }
+
+    .desktop-nav,
+    .header-cta {
+      display: block;
+    }
+
+    .desktop-nav ul {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+    }
+
+    .desktop-nav a {
+      color: var(--text-soft);
+      text-decoration: none;
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .desktop-nav a:hover,
+    .desktop-nav a:focus-visible {
+      color: var(--text);
+    }
+
+    .mobile-nav {
+      display: none;
+    }
+
+    .header-cta {
+      padding: 0.75rem 1.1rem;
+      border: 1px solid rgba(23, 27, 26, 0.16);
+      background: rgba(255, 255, 255, 0.42);
+    }
+  }
+</style>

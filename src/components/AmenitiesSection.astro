@@ -1,0 +1,76 @@
+---
+import { amenities } from '../data/content';
+---
+
+<section class="section" id="ausstattung">
+  <div class="container">
+    <div class="section-header">
+      <span class="eyebrow">Ausstattung</span>
+      <h2>Vollständig genug für eine schnelle Entscheidung.</h2>
+      <p>Die Ausstattung bleibt geordnet und ruhig, ohne technische Matrix oder dekorative Karten.</p>
+    </div>
+
+    <div class="amenities-grid">
+      {
+        Object.entries(amenities).map(([category, items]) => (
+          <section class="amenity-card">
+            <h3>{category}</h3>
+            <ul>
+              {items.map((item) => <li>{item}</li>)}
+            </ul>
+          </section>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .amenities-grid {
+    display: grid;
+    gap: 1.5rem 1.75rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .amenity-card {
+    padding-top: 1rem;
+  }
+
+  .amenity-card h3 {
+    margin: 0 0 1.2rem;
+    font-size: 0.85rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .amenity-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0.5rem;
+    color: var(--text-soft);
+  }
+
+  .amenity-card li {
+    padding: 0.4rem 0 0.65rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .amenity-card li:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  @media (min-width: 720px) {
+    .amenities-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1040px) {
+    .amenities-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>

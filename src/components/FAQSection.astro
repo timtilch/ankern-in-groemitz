@@ -1,0 +1,73 @@
+---
+import faq from '../data/faq.json';
+---
+
+<section class="section" id="faq">
+  <div class="container">
+    <div class="section-header">
+      <span class="eyebrow">FAQ</span>
+      <h2>Die häufigsten Fragen, knapp und direkt.</h2>
+      <p>Die häufigsten Fragen sind direkt auf der Seite beantwortet. Das reduziert Rückfragen und hält die Anfragephase klar.</p>
+    </div>
+
+    <div class="faq-list">
+      {
+        faq.map((item, index) => (
+          <details class="faq-item" open={index === 0}>
+            <summary>{item.question}</summary>
+            <p>{item.answer}</p>
+          </details>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  section {
+    background: var(--surface-alt);
+  }
+
+  .faq-list {
+    display: grid;
+    gap: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .faq-item {
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .faq-item summary {
+    cursor: pointer;
+    font-weight: 700;
+    line-height: 1.4;
+    list-style: none;
+    padding-right: 2rem;
+    position: relative;
+  }
+
+  .faq-item summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq-item summary::after {
+    content: '+';
+    position: absolute;
+    right: 0;
+    top: -0.15rem;
+    font-size: 1.35rem;
+    color: var(--accent);
+  }
+
+  .faq-item[open] summary::after {
+    content: '−';
+  }
+
+  .faq-item p {
+    margin: 0.85rem 0 0;
+    color: var(--text-soft);
+    max-width: 38rem;
+  }
+</style>

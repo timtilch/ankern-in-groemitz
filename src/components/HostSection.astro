@@ -1,0 +1,95 @@
+---
+import apartment from '../data/apartment.json';
+import imageMeta from '../data/images.json';
+import { mediaLibrary } from '../data/media';
+import ResponsiveImage from './ResponsiveImage.astro';
+type ImageEntry = { asset: string; alt: string; ratio: string };
+
+const imageCatalog = imageMeta as Record<string, ImageEntry>;
+const hostMeta = imageCatalog[apartment.host.imageKey];
+const hostImage = mediaLibrary[hostMeta.asset];
+---
+
+<section class="section" id="kontakt">
+  <div class="container host-grid">
+    <div class="host-image-wrap">
+      <ResponsiveImage
+        src={hostImage}
+        alt={hostMeta.alt}
+        widths={[320, 480, 640, 800]}
+        sizes="(min-width: 960px) 24rem, 100vw"
+        class="host-image"
+      />
+    </div>
+
+    <div class="host-copy">
+      <span class="eyebrow">Gastgeber</span>
+      <h2>{apartment.host.name}</h2>
+      <p>{apartment.host.bio}</p>
+      <div class="host-contact">
+        <a class="action-link" href={`tel:${apartment.contact.phone.replaceAll(' ', '')}`}>{apartment.contact.phone}</a>
+        <a class="action-link" href={`mailto:${apartment.contact.email}`}>{apartment.contact.email}</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .host-grid {
+    display: grid;
+    gap: 1.35rem;
+    border-top: 1px solid var(--line);
+    padding-top: 1.35rem;
+  }
+
+  .host-image-wrap {
+    overflow: hidden;
+  }
+
+  .host-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    aspect-ratio: 4 / 4.4;
+    max-height: 20rem;
+  }
+
+  .host-copy {
+    display: grid;
+    align-content: center;
+    gap: 1rem;
+  }
+
+  .host-copy h2,
+  .host-copy p {
+    margin: 0;
+  }
+
+  .host-copy h2 {
+    font-family: inherit;
+    font-size: clamp(1.8rem, 3vw, 2.6rem);
+    line-height: 1.08;
+    font-weight: 700;
+  }
+
+  .host-copy p {
+    color: var(--text-soft);
+    max-width: 32rem;
+  }
+
+  .host-contact {
+    display: grid;
+    gap: 0.9rem;
+  }
+
+  .host-contact a {
+    justify-content: flex-start;
+  }
+
+  @media (min-width: 960px) {
+    .host-grid {
+      grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
+      gap: 2.5rem;
+    }
+  }
+</style>

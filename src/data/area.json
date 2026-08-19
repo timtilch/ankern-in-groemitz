@@ -1,0 +1,54 @@
+{
+  "places": [
+    {
+      "title": "Natur",
+      "description": "Weite Strände, Dünenabschnitte und ruhige Wege entlang der Küste machen die Umgebung ideal für langsame Morgen und lange Nachmittage im Freien."
+    },
+    {
+      "title": "Wandern & Radfahren",
+      "description": "Rund um Grömitz führen gut ausgebaute Wege durch Küstenlandschaften, kleine Orte und Felder – passend für kurze Ausfahrten oder längere Tagestouren."
+    },
+    {
+      "title": "Restaurants",
+      "description": "Von entspannten Cafés bis zu guten Fischrestaurants ist in der Umgebung vieles fußläufig oder mit wenigen Minuten Fahrzeit erreichbar."
+    },
+    {
+      "title": "Einkaufsmöglichkeiten",
+      "description": "Bäcker, Supermärkte und kleinere Läden liegen so, dass die Selbstversorgung im Urlaub unkompliziert bleibt."
+    },
+    {
+      "title": "Sehenswürdigkeiten",
+      "description": "Promenade, Seebrücke und Yachthafen bieten typische Ostseeziele für einen entspannten Spaziergang oder einen Abend mit Blick aufs Wasser."
+    },
+    {
+      "title": "Ausflugsziele",
+      "description": "Für Tagesausflüge bieten sich Orte wie Neustadt in Holstein, Eutin oder die Gutshöfe und Küstenorte der Lübecker Bucht an."
+    }
+  ],
+  "nearby": [
+    {
+      "time": "8 min",
+      "title": "Ortskern",
+      "description": "Boutiquen, Cafés und kurze Wege in den Ort.",
+      "imageKey": "nearbyCity"
+    },
+    {
+      "time": "14 min",
+      "title": "Zoo",
+      "description": "Ein ruhiger Tierpark für kurze Familienausflüge.",
+      "imageKey": "nearbyZoo"
+    },
+    {
+      "time": "6 min",
+      "title": "Strand",
+      "description": "Dünenweg, Promenade und viel Platz am Wasser.",
+      "imageKey": "nearbyStrand"
+    },
+    {
+      "time": "5 min",
+      "title": "Einkauf",
+      "description": "Supermarkt und frische Dinge für den Alltag im Urlaub.",
+      "imageKey": "nearbyMarket"
+    }
+  ]
+}

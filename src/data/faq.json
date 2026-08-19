@@ -1,0 +1,34 @@
+[
+  {
+    "question": "Wann ist Check-in?",
+    "answer": "Der Check-in ist ab 15:00 Uhr vorgesehen. Die genauen Informationen zur Schlüsselübergabe erhalten Gäste rechtzeitig vor der Anreise."
+  },
+  {
+    "question": "Wann ist Check-out?",
+    "answer": "Der Check-out erfolgt bis 10:00 Uhr, damit genügend Zeit für die Vorbereitung der Wohnung für die nächsten Gäste bleibt."
+  },
+  {
+    "question": "Gibt es einen Mindestaufenthalt?",
+    "answer": "Der Mindestaufenthalt beträgt derzeit drei Nächte. In Ferienzeiten kann die Mindestdauer saisonal angepasst werden."
+  },
+  {
+    "question": "Sind Haustiere erlaubt?",
+    "answer": "Haustiere sind auf Anfrage möglich. Vor einer verbindlichen Buchung sollte dies kurz abgestimmt werden."
+  },
+  {
+    "question": "Gibt es einen Parkplatz?",
+    "answer": "Ja, ein privater Stellplatz direkt am Haus ist für den Aufenthalt reserviert."
+  },
+  {
+    "question": "Sind Bettwäsche und Handtücher vorhanden?",
+    "answer": "Im finalen Angebot wird transparent angegeben, welche Wäschepakete enthalten sind oder optional hinzugebucht werden können."
+  },
+  {
+    "question": "Wie läuft eine Buchungsanfrage ab?",
+    "answer": "Nach der unverbindlichen Anfrage wird die Verfügbarkeit geprüft und anschließend eine Rückmeldung mit allen Konditionen versendet."
+  },
+  {
+    "question": "Wie erfolgt die Bezahlung?",
+    "answer": "Die genauen Zahlungsbedingungen werden später in die echten Vermietungsunterlagen übernommen. Aktuell dient diese Seite als realistische Demo mit Mock-Inhalten."
+  }
+]

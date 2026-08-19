@@ -1,0 +1,123 @@
+---
+import apartment from '../data/apartment.json';
+---
+
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div>
+      <strong>{apartment.name}</strong>
+      <p>{apartment.location}</p>
+    </div>
+
+    <div>
+      <strong>Kontakt</strong>
+      <p><a class="action-link footer-link" href={`tel:${apartment.contact.phone.replaceAll(' ', '')}`}>{apartment.contact.phone}</a></p>
+      <p><a class="action-link footer-link" href={`mailto:${apartment.contact.email}`}>{apartment.contact.email}</a></p>
+    </div>
+  </div>
+  <div class="container footer-meta">
+    <span>© 2026 {apartment.name}</span>
+    <nav aria-label="Rechtliches">
+      <a href="/impressum">Impressum</a>
+      <a href="/datenschutz">Datenschutz</a>
+    </nav>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    padding: 2.75rem 0 2.2rem;
+    border-top: 1px solid var(--line);
+    background: var(--surface-footer);
+  }
+
+  .footer-grid {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .footer-grid strong {
+    display: block;
+    margin-bottom: 0.45rem;
+    font-size: 0.82rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .footer-grid p,
+  .footer-meta {
+    margin: 0;
+    color: var(--text-soft);
+  }
+
+  .footer-link {
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 0.95rem;
+  }
+
+  .footer-link::after {
+    display: none;
+  }
+
+  .footer-meta {
+    margin-top: 1.9rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem 1.5rem;
+    align-items: center;
+    color: var(--text-soft);
+    font-size: 0.92rem;
+    justify-content: space-between;
+    text-align: left;
+  }
+
+  .footer-meta > span {
+    flex: 1 1 auto;
+  }
+
+  .footer-meta nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.4rem;
+    justify-content: flex-end;
+    margin-left: auto;
+  }
+
+  .footer-meta a {
+    text-decoration: none;
+  }
+
+  .footer-meta a:hover,
+  .footer-meta a:focus-visible {
+    color: var(--text);
+  }
+
+  @media (min-width: 720px) {
+    .footer-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .footer-meta {
+      flex-wrap: nowrap;
+      gap: 0.75rem 1.8rem;
+    }
+
+    .footer-meta nav {
+      margin-left: 0;
+    }
+  }
+
+  @media (max-width: 719px) {
+    .footer-meta {
+      justify-content: flex-start;
+      text-align: left;
+    }
+
+    .footer-meta nav {
+      justify-content: flex-start;
+    }
+  }
+</style>

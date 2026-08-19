@@ -1,0 +1,132 @@
+---
+import apartment from '../data/apartment.json';
+import imageMeta from '../data/images.json';
+import { mediaLibrary } from '../data/media';
+import ResponsiveImage from './ResponsiveImage.astro';
+type ImageEntry = { asset: string; alt: string; ratio: string };
+
+const imageCatalog = imageMeta as Record<string, ImageEntry>;
+const heroMeta = imageCatalog[apartment.imageKeys.hero];
+const heroImage = mediaLibrary[heroMeta.asset];
+---
+
+<section class="hero section" id="top">
+  <div class="hero-shell">
+    <div class="hero-image-wrap">
+      <ResponsiveImage
+        src={heroImage}
+        alt={heroMeta.alt}
+        widths={[960, 1280, 1600, 2200]}
+        sizes="100vw"
+        loading="eager"
+        class="hero-image"
+      />
+    </div>
+
+    <div class="container hero-content">
+      <div class="hero-copy">
+        <span class="eyebrow">Ferienwohnung · Ostsee</span>
+        <h1>
+          <span>Ankern</span>
+          <span>in Grömitz</span>
+        </h1>
+        <div class="hero-meta">
+          <p class="hero-place">{apartment.location}</p>
+          <p>{apartment.tagline}</p>
+        </div>
+        <div class="actions">
+          <a class="button" href="#verfuegbarkeit">Anfragen</a>
+          <a class="action-link" href="#wohnung">Wohnung entdecken</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    padding: 0;
+  }
+
+  .hero-shell {
+    position: relative;
+    min-height: min(60rem, 100vh);
+    background: #d9d3c8;
+  }
+
+  .hero-content {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    align-items: center;
+    padding-top: 6.2rem;
+    padding-bottom: 3.2rem;
+  }
+
+  .hero-copy {
+    display: grid;
+    gap: 1rem;
+    width: min(30rem, calc(100vw - 2rem));
+    padding: 2.2rem 2.2rem 2.1rem;
+    background: rgba(255, 255, 255, 0.76);
+    backdrop-filter: blur(14px);
+  }
+
+  .hero-meta {
+    display: grid;
+    gap: 0.45rem;
+    max-width: 23rem;
+  }
+
+  .hero-copy h1 {
+    margin: 0;
+    font-family: inherit;
+    font-size: clamp(3rem, 9vw, 5.5rem);
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+    max-width: 8ch;
+    font-weight: 700;
+  }
+
+  .hero-copy h1 span {
+    display: block;
+  }
+
+  .hero-copy p {
+    margin: 0;
+    color: var(--text-soft);
+    font-size: 0.98rem;
+  }
+
+  .hero-place {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .hero-image-wrap {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  .hero-image-wrap :global(img.hero-image) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  @media (min-width: 960px) {
+    .hero-content {
+      align-items: end;
+      padding-top: 7.5rem;
+      padding-bottom: 4.2rem;
+    }
+
+    .hero-copy {
+      width: min(32rem, 36vw);
+      padding: 2.5rem 2.5rem 2.35rem;
+    }
+  }
+</style>

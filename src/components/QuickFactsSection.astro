@@ -1,0 +1,158 @@
+---
+import apartment from '../data/apartment.json';
+import { Blinds, SquareParking, Umbrella, Wifi } from 'lucide';
+import type { IconNode } from 'lucide';
+
+const renderLucideIcon = (iconNode: IconNode) =>
+  `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">${iconNode
+    .map(([tag, attrs]) => `<${tag} ${Object.entries(attrs)
+      .filter(([, value]) => value !== undefined)
+      .map(([key, value]) => `${key}="${String(value)}"`)
+      .join(' ')}></${tag}>`)
+    .join('')}</svg>`;
+
+const factIcons: Record<string, string> = {
+  WLAN: renderLucideIcon(Wifi),
+  Terrasse: renderLucideIcon(Umbrella),
+  Parkplatz: renderLucideIcon(SquareParking),
+  Jalousien: renderLucideIcon(Blinds)
+};
+
+const factDescriptions: Record<string, string> = {
+  WLAN: 'Stabiles WLAN für Streaming, Homeoffice und schnelle Verbindungen im ganzen Apartment.',
+  Terrasse: 'Privater Außenplatz mit ruhiger Atmosphäre und viel Licht für Frühstück oder Abendstunden.',
+  Parkplatz: 'Ein fester Stellplatz direkt am Haus macht Anreise und Ausflüge entspannt und unkompliziert.',
+  Jalousien: 'Verdunkelbare Räume für ruhige Nächte, spätes Ausschlafen und angenehme Sommertage.'
+};
+---
+
+<section class="section quickfacts-section" id="wohnung">
+  <div class="container quickfacts">
+    <div class="quickfacts-copy">
+      <span class="eyebrow">Ferienwohnung</span>
+      <h2>
+        <span>Ankommen.</span>
+        <span>Abschalten.</span>
+        <span>Wohlfühlen.</span>
+      </h2>
+      <p>{apartment.shortDescription}</p>
+    </div>
+
+    <ul class="facts-list" aria-label="Wohnungsdaten">
+      {
+        apartment.quickFacts.map((fact) => {
+          const [head, ...rest] = fact.split(' ');
+          return (
+            <li>
+              <span class="fact-icon" set:html={factIcons[head] ?? factIcons.WLAN} />
+              <div class="fact-copy">
+                <strong>{head}</strong>
+                <p>{factDescriptions[head] ?? (rest.join(' ') || fact)}</p>
+              </div>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .quickfacts-section {
+    padding-top: var(--section-space);
+  }
+
+  .quickfacts {
+    display: grid;
+    gap: 1.6rem;
+  }
+
+  .quickfacts-copy {
+    display: grid;
+    gap: 1rem;
+    max-width: 32rem;
+  }
+
+  .quickfacts-copy h2 {
+    margin: 0;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    line-height: 1.04;
+    letter-spacing: -0.04em;
+  }
+
+  .quickfacts-copy h2 span {
+    display: block;
+  }
+
+  .quickfacts-copy p {
+    margin: 0;
+    color: var(--text-soft);
+    max-width: 26rem;
+    font-size: 1.02rem;
+    line-height: 1.6;
+  }
+
+  .facts-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.1rem;
+    align-self: start;
+  }
+
+  .facts-list li {
+    min-height: 11rem;
+    padding: 1.45rem 1.3rem 1.35rem;
+    border: 1px solid rgba(27, 31, 30, 0.08);
+    background: #f7f4ef;
+    display: grid;
+    align-content: start;
+    gap: 1rem;
+  }
+
+  .fact-icon {
+    display: inline-flex;
+    width: 2rem;
+    height: 2rem;
+    color: var(--accent);
+    opacity: 0.92;
+  }
+
+  .fact-icon :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+
+  .fact-copy {
+    display: grid;
+    gap: 0.55rem;
+  }
+
+  .facts-list strong {
+    font-size: clamp(1rem, 1.7vw, 1.3rem);
+    font-weight: 700;
+    line-height: 1.05;
+    font-family: inherit;
+  }
+
+  .fact-copy p {
+    margin: 0;
+    color: var(--text-soft);
+    line-height: 1.55;
+    font-size: 0.95rem;
+  }
+
+  @media (min-width: 960px) {
+    .quickfacts {
+      grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
+      align-items: start;
+      gap: 2.6rem;
+    }
+
+    .facts-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>
