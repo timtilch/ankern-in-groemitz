@@ -21,7 +21,8 @@
     "WLAN",
     "Terrasse",
     "Parkplatz",
-    "Rauchfrei"
+    "Rauchfrei",
+    "Barrierearm"
   ],
   "houseRules": {
     "checkIn": "ab 15:00 Uhr",

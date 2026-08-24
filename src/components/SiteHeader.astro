@@ -10,7 +10,7 @@ const links = [
 ];
 ---
 
-<header class="site-header is-visible">
+<header class="site-header">
   <div class="container header-inner">
     <a class="brand" href="#top" aria-label={`${apartment.name} Startseite`}>
       <span>
@@ -60,13 +60,18 @@ const links = [
 
     const syncHeader = () => {
       const currentY = window.scrollY;
-      const scrollingDown = currentY > lastY + 8;
-      const scrollingUp = currentY < lastY - 8;
+      const scrollingDown = currentY > lastY + 2;
+      const scrollingUp = currentY < lastY - 2;
       const beyondHero = currentY > 120;
 
       header.classList.toggle('is-fixed', beyondHero);
-      header.classList.toggle('is-hidden', beyondHero && scrollingDown);
-      header.classList.toggle('is-visible', !beyondHero || scrollingUp);
+      if (!beyondHero) {
+        header.classList.remove('is-hidden');
+      } else if (scrollingDown) {
+        header.classList.add('is-hidden');
+      } else if (scrollingUp) {
+        header.classList.remove('is-hidden');
+      }
 
       lastY = currentY;
       ticking = false;
@@ -99,11 +104,6 @@ const links = [
   .site-header.is-hidden {
     transform: translateY(-110%);
     opacity: 0;
-  }
-
-  .site-header.is-visible {
-    transform: translateY(0);
-    opacity: 1;
   }
 
   .header-inner {

@@ -1,6 +1,6 @@
 ---
 import apartment from '../data/apartment.json';
-import { Blinds, CigaretteOff, Ruler, SquareParking, Umbrella, Wifi } from 'lucide';
+import { Accessibility, CigaretteOff, Ruler, SquareParking, Umbrella, Wifi } from 'lucide';
 import type { IconNode } from 'lucide';
 
 const renderLucideIcon = (iconNode: IconNode) =>
@@ -16,8 +16,8 @@ const factIcons: Record<string, string> = {
   Wohnfläche: renderLucideIcon(Ruler),
   Terrasse: renderLucideIcon(Umbrella),
   Parkplatz: renderLucideIcon(SquareParking),
-  Jalousien: renderLucideIcon(Blinds),
-  Rauchfrei: renderLucideIcon(CigaretteOff)
+  Rauchfrei: renderLucideIcon(CigaretteOff),
+  Barrierearm: renderLucideIcon(Accessibility)
 };
 
 const factDescriptions: Record<string, string> = {
@@ -25,8 +25,8 @@ const factDescriptions: Record<string, string> = {
   Wohnfläche: '58 m² Wohnfläche in einer modernisierten 2-Zimmer-Wohnung.',
   Terrasse: 'Privater Außenplatz mit ruhiger Atmosphäre und viel Licht für Frühstück oder Abendstunden.',
   Parkplatz: 'Ein fester Stellplatz direkt am Haus macht Anreise und Ausflüge entspannt und unkompliziert.',
-  Jalousien: 'Außenjalousien im Schlafzimmer und elektrische Außenjalousien im Wohnzimmer.',
-  Rauchfrei: 'Das Domizil ist rauch- und haustierfrei.'
+  Rauchfrei: 'Das Domizil ist rauch- und haustierfrei.',
+  Barrierearm: 'Leicht begehbare Dusche für einen komfortablen Aufenthalt.'
 };
 ---
 
@@ -102,24 +102,21 @@ const factDescriptions: Record<string, string> = {
     margin: 0;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1.1rem;
+    gap: 2rem 1.6rem;
     align-self: start;
   }
 
   .facts-list li {
-    min-height: 11rem;
-    padding: 1.45rem 1.3rem 1.35rem;
-    border: 1px solid rgba(27, 31, 30, 0.08);
-    background: #f7f4ef;
+    padding: 0;
     display: grid;
     align-content: start;
-    gap: 1rem;
+    gap: 0.85rem;
   }
 
   .fact-icon {
     display: inline-flex;
-    width: 2rem;
-    height: 2rem;
+    width: 2.3rem;
+    height: 2.3rem;
     color: var(--accent);
     opacity: 0.92;
   }
@@ -131,11 +128,11 @@ const factDescriptions: Record<string, string> = {
 
   .fact-copy {
     display: grid;
-    gap: 0.55rem;
+    gap: 0.45rem;
   }
 
   .facts-list strong {
-    font-size: clamp(1rem, 1.7vw, 1.3rem);
+    font-size: clamp(1rem, 1.4vw, 1.2rem);
     font-weight: 700;
     line-height: 1.05;
     font-family: inherit;
@@ -145,7 +142,7 @@ const factDescriptions: Record<string, string> = {
     margin: 0;
     color: var(--text-soft);
     line-height: 1.55;
-    font-size: 0.95rem;
+    font-size: 0.92rem;
   }
 
   @media (min-width: 960px) {
@@ -156,7 +153,8 @@ const factDescriptions: Record<string, string> = {
     }
 
     .facts-list {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 2.4rem 2.5rem;
     }
   }
 </style>
