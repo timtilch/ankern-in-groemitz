@@ -1,10 +1,11 @@
 {
+  "cleaningFee": 60,
   "addons": [
     {
       "id": "laundry",
       "label": "Wäschepaket",
-      "description": "Bettwäsche und Handtücher pro Person",
-      "pricePerGuest": 24
+      "description": "2 Duschtücher, 3 Handtücher, 3 Geschirrtücher, 1 Duschvorleger, Bettwäsche und Laken",
+      "pricePerGuest": 15
     }
   ]
 }

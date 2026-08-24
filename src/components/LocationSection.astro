@@ -2,7 +2,7 @@
 import { area, apartment, imageMeta } from '../data/content';
 import { mediaLibrary } from '../data/media';
 import ResponsiveImage from './ResponsiveImage.astro';
-type NearbyEntry = { time: string; title: string; description: string };
+type NearbyEntry = { time: string; title: string };
 type ImageEntry = { asset: string; alt: string; ratio: string };
 
 const nearbyEntries = (area.nearby ?? []) as NearbyEntry[];
@@ -13,7 +13,7 @@ const imageCatalog = imageMeta as Record<string, ImageEntry>;
   <div class="container">
     <div class="section-header">
       <span class="eyebrow">Umgebung</span>
-      <h2>Wichtige Ziele lassen sich schnell und unkompliziert erreichen.</h2>
+      <h2>Kurze Wege für entspannte Urlaubstage.</h2>
       <p>{apartment.area.intro}</p>
     </div>
 
@@ -36,7 +36,6 @@ const imageCatalog = imageMeta as Record<string, ImageEntry>;
               <div class="nearby-copy">
                 <strong>{entry.time}</strong>
                 <span>{entry.title}</span>
-                <p>{entry.description}</p>
               </div>
             </article>
           );

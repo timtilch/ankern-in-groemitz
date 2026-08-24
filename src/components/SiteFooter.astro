@@ -1,22 +1,44 @@
 ---
 import apartment from '../data/apartment.json';
+import { Mail, Phone } from 'lucide';
+import type { IconNode } from 'lucide';
+
+const renderLucideIcon = (iconNode: IconNode) =>
+  `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">${iconNode
+    .map(([tag, attrs]) => `<${tag} ${Object.entries(attrs)
+      .filter(([, value]) => value !== undefined)
+      .map(([key, value]) => `${key}="${String(value)}"`)
+      .join(' ')}></${tag}>`)
+    .join('')}</svg>`;
 ---
 
 <footer class="site-footer">
-  <div class="container footer-grid">
-    <div>
+  <div class="container footer-main">
+    <div class="footer-brand">
+      <span class="footer-kicker">Ferienwohnung in Grömitz</span>
       <strong>{apartment.name}</strong>
-      <p>{apartment.location}</p>
+      <p>Ruhige Auszeit an der Lübecker Bucht.</p>
     </div>
 
-    <div>
-      <strong>Kontakt</strong>
-      <p><a class="action-link footer-link" href={`tel:${apartment.contact.phone.replaceAll(' ', '')}`}>{apartment.contact.phone}</a></p>
-      <p><a class="action-link footer-link" href={`mailto:${apartment.contact.email}`}>{apartment.contact.email}</a></p>
+    <div class="footer-contact">
+      <span class="footer-icon" set:html={renderLucideIcon(Phone)} />
+      <div>
+        <span class="footer-kicker">Telefon</span>
+        <a href={`tel:${apartment.contact.phone.replaceAll(' ', '')}`}>{apartment.contact.phone}</a>
+      </div>
+    </div>
+
+    <div class="footer-contact">
+      <span class="footer-icon" set:html={renderLucideIcon(Mail)} />
+      <div>
+        <span class="footer-kicker">E-Mail</span>
+        <a href={`mailto:${apartment.contact.email}`}>{apartment.contact.email}</a>
+      </div>
     </div>
   </div>
+
   <div class="container footer-meta">
-    <span>© 2026 {apartment.name}</span>
+    <span>© {new Date().getFullYear()} {apartment.name}</span>
     <nav aria-label="Rechtliches">
       <a href="/impressum">Impressum</a>
       <a href="/datenschutz">Datenschutz</a>
@@ -26,98 +48,106 @@ import apartment from '../data/apartment.json';
 
 <style>
   .site-footer {
-    padding: 2.75rem 0 2.2rem;
-    border-top: 1px solid var(--line);
-    background: var(--surface-footer);
+    padding: 4.5rem 0 1.6rem;
+    background: #123e64;
+    color: #f5f8fb;
   }
 
-  .footer-grid {
+  .footer-main {
     display: grid;
-    gap: 1.5rem;
+    gap: 2.5rem;
   }
 
-  .footer-grid strong {
-    display: block;
-    margin-bottom: 0.45rem;
-    font-size: 0.82rem;
-    letter-spacing: 0.14em;
+  .footer-brand {
+    display: grid;
+    gap: 0.65rem;
+    max-width: 24rem;
+  }
+
+  .footer-kicker {
+    color: #a9c2da;
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
   }
 
-  .footer-grid p,
-  .footer-meta {
+  .footer-brand strong {
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    letter-spacing: -0.045em;
+    line-height: 0.96;
+  }
+
+  .footer-brand p {
     margin: 0;
-    color: var(--text-soft);
+    color: #c6d5e3;
+    font-size: 1rem;
   }
 
-  .footer-link {
-    text-transform: none;
-    letter-spacing: 0;
-    font-size: 0.95rem;
+  .footer-contact {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 0.85rem;
   }
 
-  .footer-link::after {
-    display: none;
+  .footer-contact > div {
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  .footer-icon {
+    display: inline-flex;
+    width: 2.6rem;
+    height: 2.6rem;
+    color: #a9c9f5;
+  }
+
+  .footer-icon :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+
+  .footer-contact a {
+    color: #f5f8fb;
+    font-size: 1.12rem;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+  }
+
+  .footer-contact a:hover,
+  .footer-contact a:focus-visible,
+  .footer-meta a:hover,
+  .footer-meta a:focus-visible {
+    color: #a9c9f5;
   }
 
   .footer-meta {
-    margin-top: 1.9rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--line);
+    margin-top: 3.5rem;
+    padding-top: 1.3rem;
+    border-top: 1px solid rgba(224, 237, 248, 0.2);
     display: flex;
     flex-wrap: wrap;
-    gap: 0.55rem 1.5rem;
-    align-items: center;
-    color: var(--text-soft);
-    font-size: 0.92rem;
     justify-content: space-between;
-    text-align: left;
-  }
-
-  .footer-meta > span {
-    flex: 1 1 auto;
+    gap: 1rem 1.5rem;
+    color: #a9c2da;
+    font-size: 0.9rem;
   }
 
   .footer-meta nav {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem 1.4rem;
-    justify-content: flex-end;
-    margin-left: auto;
+    gap: 1.25rem;
   }
 
   .footer-meta a {
+    color: inherit;
     text-decoration: none;
   }
 
-  .footer-meta a:hover,
-  .footer-meta a:focus-visible {
-    color: var(--text);
-  }
-
-  @media (min-width: 720px) {
-    .footer-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .footer-meta {
-      flex-wrap: nowrap;
-      gap: 0.75rem 1.8rem;
-    }
-
-    .footer-meta nav {
-      margin-left: 0;
-    }
-  }
-
-  @media (max-width: 719px) {
-    .footer-meta {
-      justify-content: flex-start;
-      text-align: left;
-    }
-
-    .footer-meta nav {
-      justify-content: flex-start;
+  @media (min-width: 760px) {
+    .footer-main {
+      grid-template-columns: minmax(0, 1.25fr) repeat(2, minmax(0, 0.75fr));
+      align-items: end;
+      gap: 2rem;
     }
   }
 </style>

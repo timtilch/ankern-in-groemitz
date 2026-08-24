@@ -2,38 +2,46 @@
   {
     "tabLabel": "Wohnen",
     "title": "Wohnzimmer",
-    "eyebrow": "Ankommen",
-    "description": "Der offene Wohnbereich ist der Mittelpunkt der Wohnung: großzügig, hell und bewusst ruhig gestaltet. Hier treffen weiche Stoffe, helle Holzoberflächen und ein entspannter Blick ins Freie aufeinander.",
-    "details": ["28 m²", "Smart-TV", "Terrassenzugang"],
+    "eyebrow": "Entspannt zusammenkommen",
+    "description": "Der Wohnbereich verbindet eine gemütliche Essecke mit Unterhaltung für ruhige Abende. Elektrische Außenjalousien schaffen bei Bedarf eine angenehm geschützte Atmosphäre.",
+    "details": ["Satellitenfernsehen & Smart-TV", "Stereoanlage", "Essecke & Schlafsessel", "Elektrische Außenjalousien"],
     "imageKey": "living",
     "imageSide": "right"
   },
   {
     "tabLabel": "Schlafen",
     "title": "Schlafzimmer",
-    "eyebrow": "Zur Ruhe kommen",
-    "description": "Zwei Schlafzimmer bieten klare, freundliche Räume mit viel Licht und einem reduzierten Materialmix. Die Gestaltung bleibt bewusst zurückhaltend, damit sich Erholung nicht inszeniert, sondern selbstverständlich anfühlt.",
-    "details": ["2 Zimmer", "Doppelbett + Einzelbetten", "Verdunkelbar"],
+    "eyebrow": "Erholt aufwachen",
+    "description": "Das Schlafzimmer ist auf ruhige Nächte ausgelegt: ein großzügiges Doppelbett, viel Stauraum und Außenjalousien für angenehme Verdunkelung.",
+    "details": ["Doppelbett 180 × 200 cm", "Nachtschränke", "Großzügiger Kleiderschrank", "Außenjalousien"],
     "imageKey": "bedroom",
     "imageSide": "left"
   },
   {
     "tabLabel": "Küche",
-    "title": "Küche & Essen",
-    "eyebrow": "Gemeinsam",
-    "description": "Die Küche ist vollständig auf entspannte Urlaubstage ausgelegt und verbindet Funktion mit wohnlichem Charakter. Frühstück in Ruhe, gemeinsames Kochen oder ein spätes Glas Wein funktionieren hier gleichermaßen gut.",
-    "details": ["Essplatz", "Voll ausgestattet", "Kurze Wege"],
+    "title": "Küche",
+    "eyebrow": "Gut ausgestattet",
+    "description": "Die voll ausgestattete Küche bietet alles für entspannte Urlaubstage, vom ersten Kaffee am Morgen bis zum gemeinsamen Essen am Abend.",
+    "details": ["Waschmaschine & Kühl-/Gefrierkombi", "Filter-Kaffeemaschine & Wasserkocher", "Toaster & Mikrowelle", "Voll ausgestattet"],
     "imageKey": "kitchen",
     "imageSide": "right"
   },
   {
     "tabLabel": "Bad",
-    "title": "Bad & Außenbereich",
-    "eyebrow": "Leicht und unkompliziert",
-    "description": "Bad und Terrasse ergänzen die Wohnung um genau die Elemente, die einen Aufenthalt runder machen: klare Materialien, gutes Licht und Platz für kleine Routinen zwischen Strand, Ausflug und Abendessen.",
-    "details": ["Walk-in-Dusche", "Terrasse", "Abendsonne"],
+    "title": "Badezimmer",
+    "eyebrow": "Klarer Komfort",
+    "description": "Das modern ausgestattete Badezimmer verfügt über eine leicht begehbare Dusche mit Regendusche - praktisch und angenehm nach einem Tag am Meer.",
+    "details": ["Moderne Ausstattung", "Leicht begehbare Dusche", "Regendusche"],
     "imageKey": "bathroom",
-    "secondaryImageKey": "outdoor",
     "imageSide": "left"
+  },
+  {
+    "tabLabel": "Terrasse",
+    "title": "Terrasse",
+    "eyebrow": "Sonne bis zum Abend",
+    "description": "Die großzügige, südwestlich ausgerichtete Terrasse erweitert den Wohnraum nach draußen - mit Platz zum Zurücklehnen, Lesen und Essen im Freien.",
+    "details": ["Südwestliche Ausrichtung", "Strandkorb", "Zwei Liegestühle", "Tisch"],
+    "imageKey": "outdoor",
+    "imageSide": "right"
   }
 ]

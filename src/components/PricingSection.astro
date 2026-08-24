@@ -35,7 +35,7 @@ const priceRange = getDisplayedPriceRange();
             seasonTable.map((season) => (
               <tr>
                 <td>{season.label}</td>
-                <td>{season.fromLabel} bis {season.toLabel}</td>
+                <td>{season.fromLabel}</td>
                 <td>{season.pricePerNight} €</td>
               </tr>
             ))
@@ -44,7 +44,8 @@ const priceRange = getDisplayedPriceRange();
       </table>
 
       <div class="price-note">
-        <p>Preisauskunft unverbindlich. Nebenkosten, Kurabgabe und finale Konditionen werden später mit den echten Vermietungsdaten ergänzt.</p>
+        <p>Die verpflichtende Endreinigung von 60 € wird einmalig berechnet und direkt im Gesamtpreis aufgeführt. Das Wäschepaket kostet optional 15 € pro Person.</p>
+        <p>Preisauskunft unverbindlich. Kurabgabe und finale Konditionen werden später mit den echten Vermietungsdaten ergänzt.</p>
         <div class="house-rules">
           <span>{apartment.houseRules.minimumStay}</span>
           <span>{apartment.houseRules.checkIn}</span>

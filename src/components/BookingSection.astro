@@ -1,25 +1,27 @@
 ---
 import apartment from '../data/apartment.json';
-import prices from '../data/prices.json';
-import availability from '../data/availability.json';
+import fallbackBookings from '../data/availability.json';
 import booking from '../data/booking.json';
 import { toIsoDate } from '../lib/date';
 
 const today = toIsoDate(new Date());
 const minimumStayNights = Number.parseInt(apartment.houseRules.minimumStay, 10) || 3;
+const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL?.replace(/\/$/, '') || '';
 ---
 
 <section class="section booking-section" id="verfuegbarkeit">
   <div
     class="container booking-widget"
-    data-seasons={JSON.stringify(prices)}
-    data-blocked={JSON.stringify(availability)}
+    data-blocked={JSON.stringify(fallbackBookings)}
+    data-bookings-url={`${apiBaseUrl}/bookings`}
+    data-request-url={`${apiBaseUrl}/requests`}
     data-today={today}
     data-min-stay={minimumStayNights}
     data-capacity={apartment.capacity}
     data-phone={apartment.contact.phone}
     data-email={apartment.contact.email}
     data-addons={JSON.stringify(booking.addons)}
+    data-cleaning-fee={booking.cleaningFee}
   >
     <div class="section-header booking-header">
       <span class="eyebrow">Urlaub planen</span>
@@ -28,7 +30,7 @@ const minimumStayNights = Number.parseInt(apartment.houseRules.minimumStay, 10) 
     </div>
 
     <div class="booking-grid">
-      <section class="booking-summary">
+      <section class="booking-summary booking-summary-desktop" data-booking-summary>
         <h3>Ihr Aufenthalt</h3>
         <dl data-summary>
           <div><dt>Anreise</dt><dd>-</dd></div>
@@ -112,20 +114,30 @@ const minimumStayNights = Number.parseInt(apartment.houseRules.minimumStay, 10) 
               <span>Ich habe die Datenschutzhinweise gelesen und stimme der Verarbeitung meiner Anfrage zu.</span>
             </label>
           </div>
+          <section class="booking-summary booking-summary-mobile" data-booking-summary>
+            <h3>Ihr Aufenthalt</h3>
+            <dl data-summary>
+              <div><dt>Anreise</dt><dd>-</dd></div>
+              <div><dt>Abreise</dt><dd>-</dd></div>
+              <div><dt>Nächte</dt><dd>-</dd></div>
+            </dl>
+            <div class="price-breakdown" data-breakdown></div>
+            <div class="addon-breakdown" data-addon-breakdown></div>
+            <div class="price-total">
+              <span>Geschätzter Gesamtpreis</span>
+              <strong data-total>Bitte Zeitraum wählen</strong>
+            </div>
+            <p>Unverbindliche Preisberechnung. Finale Konditionen werden nach Verfügbarkeitsprüfung mitgeteilt.</p>
+          </section>
           <button class="button" type="submit">Unverbindlich anfragen</button>
-          <p class="form-note" data-form-note>Noch ohne Versandlogik. Die Komponente ist so vorbereitet, dass Kalender- und Mail-Anbindung später ergänzt werden können.</p>
+          <p class="form-note" data-form-note data-state="idle" role="status" aria-live="polite">Wir bestätigen den Eingang Ihrer Anfrage per E-Mail.</p>
       </form>
     </div>
   </div>
 </section>
 
 <script>
-  type Season = {
-    from: string;
-    to: string;
-    pricePerNight: number;
-    label: string;
-  };
+  import { getPriceForNight } from '../lib/pricing';
 
   type BlockedRange = {
     from: string;
@@ -145,23 +157,33 @@ const minimumStayNights = Number.parseInt(apartment.houseRules.minimumStay, 10) 
     pricePerGuest: number;
   };
 
+  type BookingRequest = {
+    arrival: string;
+    departure: string;
+    guests: number;
+    name: string;
+    email: string;
+    phone: string;
+    message: string;
+    addons: string[];
+  };
+
   const root = document.querySelector<HTMLElement>('.booking-widget');
 
   if (root) {
-    const seasons: Season[] = JSON.parse(root.dataset.seasons ?? '[]');
-    const blockedRanges: BlockedRange[] = JSON.parse(root.dataset.blocked ?? '[]');
+    let blockedRanges: BlockedRange[] = JSON.parse(root.dataset.blocked ?? '[]');
     const addons: Addon[] = JSON.parse(root.dataset.addons ?? '[]');
+    const bookingsUrl = root.dataset.bookingsUrl ?? '/api/bookings';
+    const requestUrl = root.dataset.requestUrl ?? '/api/requests';
     const today = root.dataset.today ?? '';
     const minimumStay = Number(root.dataset.minStay ?? 3);
     const capacity = Number(root.dataset.capacity ?? 4);
+    const cleaningFee = Number(root.dataset.cleaningFee ?? 60);
     const grid = root.querySelector<HTMLElement>('[data-calendar-grid]');
     const message = root.querySelector<HTMLElement>('[data-calendar-message]');
     const prevButton = root.querySelector<HTMLButtonElement>('[data-calendar-prev]');
     const nextButton = root.querySelector<HTMLButtonElement>('[data-calendar-next]');
-    const summary = root.querySelector<HTMLElement>('[data-summary]');
-    const breakdown = root.querySelector<HTMLElement>('[data-breakdown]');
-    const addonBreakdown = root.querySelector<HTMLElement>('[data-addon-breakdown]');
-    const total = root.querySelector<HTMLElement>('[data-total]');
+    const summaries = Array.from(root.querySelectorAll<HTMLElement>('[data-booking-summary]'));
     const form = root.querySelector<HTMLFormElement>('[data-request-form]');
     const formNote = root.querySelector<HTMLElement>('[data-form-note]');
     const arrivalInput = form?.elements.namedItem('arrival');
@@ -202,7 +224,7 @@ const minimumStayNights = Number.parseInt(apartment.houseRules.minimumStay, 10) 
     const crossesBlocked = (start: string, end: string) =>
       eachNight(start, end).some((night) => isBlocked(night));
 
-    const getSeason = (date: string) => seasons.find((season: Season) => date >= season.from && date <= season.to);
+    const getSeason = (date: string) => getPriceForNight(date);
 
     const getAddonTotal = () => {
       const guests = guestInput instanceof HTMLSelectElement ? Number(guestInput.value) : 1;
@@ -272,36 +294,64 @@ const minimumStayNights = Number.parseInt(apartment.houseRules.minimumStay, 10) 
       visibleMonth: new Date(`${today}T00:00:00`)
     };
 
+    const loadBookings = async () => {
+      try {
+        const response = await fetch(bookingsUrl, { headers: { Accept: 'application/json' } });
+
+        if (!response.ok) {
+          throw new Error(`Bookings request failed with status ${response.status}.`);
+        }
+
+        const payload = await response.json() as { ok?: boolean; bookings?: BlockedRange[] };
+        if (Array.isArray(payload.bookings)) {
+          blockedRanges = payload.bookings;
+          updateSummary();
+          render();
+        }
+      } catch (error) {
+        if (formNote) {
+          formNote.textContent = 'Google-Kalender konnte lokal nicht geladen werden. Es werden vorerst die hinterlegten Sperrzeiten verwendet.';
+        }
+      }
+    };
+
     const updateSummary = () => {
-      if (!summary || !breakdown || !addonBreakdown || !total) return;
-      const values = summary.querySelectorAll('dd');
       const hasSelection = Boolean(state.arrival && state.departure);
       const addonItems = getAddonTotal();
       const addonTotal = addonItems.reduce((sum, item) => sum + (item?.total ?? 0), 0);
 
-      if (!hasSelection) {
-        values[0].textContent = state.arrival ? formatDate(state.arrival) : '-';
-        values[1].textContent = state.departure ? formatDate(state.departure) : '-';
-        values[2].textContent = '-';
-        breakdown.innerHTML = '';
-        addonBreakdown.innerHTML = addonItems
-          .map((item) => `<div><span>${item?.label}</span><strong>${item?.qty} × ${item?.pricePerGuest} €</strong></div>`)
-          .join('');
-        total.textContent = 'Bitte Zeitraum wählen';
-        return;
-      }
-
       const price = calculatePrice(state.arrival, state.departure);
-      values[0].textContent = formatDate(state.arrival);
-      values[1].textContent = formatDate(state.departure);
-      values[2].textContent = `${nightsBetween(state.arrival, state.departure)} Nächte`;
-      breakdown.innerHTML = price.breakdown
-        .map((item) => `<div><span>${item.label}</span><strong>${item.nights} × ${item.pricePerNight} €</strong></div>`)
-        .join('');
-      addonBreakdown.innerHTML = addonItems
-        .map((item) => `<div><span>${item?.label}</span><strong>${item?.qty} × ${item?.pricePerGuest} €</strong></div>`)
-        .join('');
-      total.textContent = `${price.totalPrice + addonTotal} €`;
+      summaries.forEach((summary) => {
+        const values = summary.querySelectorAll('dd');
+        const breakdown = summary.querySelector<HTMLElement>('[data-breakdown]');
+        const addonBreakdown = summary.querySelector<HTMLElement>('[data-addon-breakdown]');
+        const total = summary.querySelector<HTMLElement>('[data-total]');
+        if (!breakdown || !addonBreakdown || !total) return;
+
+        if (!hasSelection) {
+          values[0].textContent = state.arrival ? formatDate(state.arrival) : '-';
+          values[1].textContent = state.departure ? formatDate(state.departure) : '-';
+          values[2].textContent = '-';
+          breakdown.innerHTML = '';
+          addonBreakdown.innerHTML = addonItems
+            .map((item) => `<div><span>${item?.label}</span><strong>${item?.qty} × ${item?.pricePerGuest} €</strong></div>`)
+            .join('');
+          total.textContent = 'Bitte Zeitraum wählen';
+          return;
+        }
+
+        values[0].textContent = formatDate(state.arrival);
+        values[1].textContent = formatDate(state.departure);
+        values[2].textContent = `${nightsBetween(state.arrival, state.departure)} Nächte`;
+        breakdown.innerHTML = price.breakdown
+          .map((item) => `<div><span>${item.label}</span><strong>${item.nights} × ${item.pricePerNight} €</strong></div>`)
+          .join('');
+        addonBreakdown.innerHTML = [
+          `<div><span>Endreinigung</span><strong>${cleaningFee} €</strong></div>`,
+          ...addonItems.map((item) => `<div><span>${item?.label}</span><strong>${item?.qty} × ${item?.pricePerGuest} €</strong></div>`)
+        ].join('');
+        total.textContent = `${price.totalPrice + cleaningFee + addonTotal} €`;
+      });
     };
 
     const syncForm = () => {
@@ -414,10 +464,64 @@ const minimumStayNights = Number.parseInt(apartment.houseRules.minimumStay, 10) 
       }
     };
 
-    form?.addEventListener('submit', (event) => {
+    form?.addEventListener('submit', async (event) => {
       event.preventDefault();
+      if (!form || !state.arrival || !state.departure) {
+        if (formNote) {
+          formNote.dataset.state = 'error';
+          formNote.textContent = 'Bitte wählen Sie zuerst Anreise und Abreise.';
+        }
+        return;
+      }
+
+      const formData = new FormData(form);
+      const submitButton = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+      const payload: BookingRequest = {
+        arrival: state.arrival,
+        departure: state.departure,
+        guests: Number(formData.get('guests')),
+        name: String(formData.get('name') ?? '').trim(),
+        email: String(formData.get('email') ?? '').trim(),
+        phone: String(formData.get('phone') ?? '').trim(),
+        message: String(formData.get('message') ?? '').trim(),
+        addons: addonInputs.filter((input) => input.checked).map((input) => input.value)
+      };
+
+      submitButton?.setAttribute('disabled', 'true');
       if (formNote) {
-        formNote.textContent = `Mock-Anfrage vorbereitet für ${state.arrival ? formatDate(state.arrival) : 'offenen Zeitraum'} bis ${state.departure ? formatDate(state.departure) : 'offen'}. Echte Übermittlung folgt später über Mail-/Kalender-Anbindung.`;
+        formNote.dataset.state = 'loading';
+        formNote.textContent = 'Anfrage wird versendet ...';
+      }
+
+      try {
+        const response = await fetch(requestUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const result = await response.json() as { ok?: boolean; error?: string };
+
+        if (!response.ok || !result.ok) {
+          throw new Error(result.error || 'Die Anfrage konnte nicht versendet werden.');
+        }
+
+        form.reset();
+        state.arrival = '';
+        state.departure = '';
+        syncForm();
+        updateSummary();
+        render();
+        if (formNote) {
+          formNote.dataset.state = 'success';
+          formNote.textContent = 'Anfrage erfolgreich gesendet. Die Bestätigung ist unterwegs an Ihre E-Mail-Adresse.';
+        }
+      } catch (error) {
+        if (formNote) {
+          formNote.dataset.state = 'error';
+          formNote.textContent = error instanceof Error ? error.message : 'Die Anfrage konnte nicht versendet werden.';
+        }
+      } finally {
+        submitButton?.removeAttribute('disabled');
       }
     });
 
@@ -447,6 +551,7 @@ const minimumStayNights = Number.parseInt(apartment.houseRules.minimumStay, 10) 
     syncForm();
     updateSummary();
     render();
+    void loadBookings();
   }
 </script>
 
@@ -469,8 +574,18 @@ const minimumStayNights = Number.parseInt(apartment.houseRules.minimumStay, 10) 
 
   .calendar-head {
     display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
     gap: 0.9rem;
     margin-bottom: 0.55rem;
+  }
+
+  .calendar-legend {
+    grid-column: 1 / -1;
+  }
+
+  .calendar-nav {
+    margin-top: 0.1rem;
   }
 
   .calendar-head strong,
@@ -492,6 +607,34 @@ const minimumStayNights = Number.parseInt(apartment.houseRules.minimumStay, 10) 
   .booking-summary p,
   .form-note {
     color: var(--text-soft);
+  }
+
+  .form-note {
+    margin: 1rem 0 0;
+    padding: 0.85rem 1rem;
+    border-left: 3px solid var(--line-strong);
+    background: var(--surface-alt);
+    font-size: 0.92rem;
+    line-height: 1.45;
+  }
+
+  .form-note[data-state='success'] {
+    border-color: #3d7a62;
+    background: #e8f3eb;
+    color: #204a38;
+    font-weight: 600;
+  }
+
+  .form-note[data-state='error'] {
+    border-color: #b65252;
+    background: #fbeaea;
+    color: #7d2929;
+  }
+
+  .form-note[data-state='loading'] {
+    border-color: #b88031;
+    background: #fbf2df;
+    color: #704b15;
   }
 
   .calendar-legend {
@@ -925,6 +1068,17 @@ const minimumStayNights = Number.parseInt(apartment.houseRules.minimumStay, 10) 
     color: var(--text-soft);
   }
 
+  .booking-summary-desktop {
+    display: none;
+  }
+
+  .booking-summary-mobile {
+    margin: 1.5rem 0;
+    padding: 1.3rem 1.1rem;
+    border-top: 2px solid var(--accent);
+    background: var(--surface-alt);
+  }
+
   @media (min-width: 960px) {
     .booking-grid {
       grid-template-columns: minmax(16rem, 0.72fr) minmax(0, 1.45fr);
@@ -939,6 +1093,14 @@ const minimumStayNights = Number.parseInt(apartment.houseRules.minimumStay, 10) 
       grid-area: summary;
       position: sticky;
       top: 1.5rem;
+    }
+
+    .booking-summary-desktop {
+      display: block;
+    }
+
+    .booking-summary-mobile {
+      display: none;
     }
 
     .calendar-shell {

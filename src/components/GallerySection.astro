@@ -40,8 +40,8 @@ const galleryImages = galleryKeys.map((key) => {
   <div class="container">
     <div class="section-header gallery-header">
       <span class="eyebrow">Galerie</span>
-      <h2>Zusätzliche Ansichten der wichtigsten Bereiche.</h2>
-      <p>Die Galerie ergänzt die Raumvorstellung mit einer geordneten Bildreihe in derselben zurückhaltenden Proportion.</p>
+      <h2>Ein erster Eindruck von der Wohnung.</h2>
+      <p>Wohnbereich, Schlafzimmer, Küche, Bad und Terrasse auf einen Blick.</p>
     </div>
 
     <div class="gallery-grid">
@@ -70,12 +70,12 @@ const galleryImages = galleryKeys.map((key) => {
   <dialog class="gallery-lightbox" data-gallery-lightbox>
     <div class="lightbox-panel" data-lightbox-panel>
       <div class="lightbox-shell">
-        <button type="button" class="lightbox-arrow is-prev" data-lightbox-prev aria-label="Vorheriges Bild">←</button>
         <p class="lightbox-status" data-lightbox-status>1 / {galleryImages.length}</p>
         <button type="button" class="lightbox-close" data-lightbox-close aria-label="Lightbox schließen">Schließen</button>
       </div>
       <div class="lightbox-body">
-        <figure class="lightbox-figure">
+        <button type="button" class="lightbox-arrow is-prev" data-lightbox-prev aria-label="Vorheriges Bild">←</button>
+        <div class="lightbox-figure">
           {
             galleryImages.map((image, index) => (
               <div class="lightbox-slide" data-lightbox-slide={index} data-visible={index === 0 ? 'true' : 'false'} hidden={index !== 0}>
@@ -84,7 +84,7 @@ const galleryImages = galleryKeys.map((key) => {
               </div>
             ))
           }
-        </figure>
+        </div>
         <button type="button" class="lightbox-arrow is-next" data-lightbox-next aria-label="Nächstes Bild">→</button>
       </div>
     </div>
@@ -228,6 +228,7 @@ const galleryImages = galleryKeys.map((key) => {
     border: 0;
     background: rgba(252, 251, 248, 0.98);
     color: var(--text);
+    overflow: hidden;
   }
 
   .gallery-lightbox::backdrop {
@@ -248,11 +249,9 @@ const galleryImages = galleryKeys.map((key) => {
   }
 
   .lightbox-body {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 0.5rem;
+    position: relative;
     padding: 0 0.35rem 0.35rem;
+    overflow: hidden;
   }
 
   .lightbox-status {
@@ -269,6 +268,10 @@ const galleryImages = galleryKeys.map((key) => {
   }
 
   .lightbox-arrow {
+    position: absolute;
+    top: 50%;
+    z-index: 2;
+    transform: translateY(-50%);
     width: 2.8rem;
     height: 2.8rem;
     border: 1px solid rgba(25, 31, 30, 0.12);
@@ -277,6 +280,14 @@ const galleryImages = galleryKeys.map((key) => {
     font-size: 1.05rem;
     cursor: pointer;
     transition: background-color 180ms ease, border-color 180ms ease, transform 180ms ease;
+  }
+
+  .lightbox-arrow.is-prev {
+    left: 0.8rem;
+  }
+
+  .lightbox-arrow.is-next {
+    right: 0.8rem;
   }
 
   .lightbox-arrow:hover,
@@ -298,6 +309,10 @@ const galleryImages = galleryKeys.map((key) => {
     display: grid;
     gap: 0.7rem;
     animation: lightbox-fade 220ms ease;
+  }
+
+  .lightbox-slide[hidden] {
+    display: none;
   }
 
   .lightbox-slide figcaption,
@@ -348,21 +363,7 @@ const galleryImages = galleryKeys.map((key) => {
       padding: 0.65rem 0.65rem 0;
     }
 
-    .lightbox-body {
-      grid-template-columns: 1fr;
-      gap: 0.4rem;
-      padding: 0 0.3rem 0.3rem;
-    }
-
-    .lightbox-figure {
-      order: 1;
-    }
-
     .lightbox-arrow {
-      position: absolute;
-      top: 50%;
-      z-index: 2;
-      transform: translateY(-50%);
       width: 2.5rem;
       height: 2.5rem;
       background: rgba(255, 255, 255, 0.9);

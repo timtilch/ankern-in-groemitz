@@ -1,0 +1,6 @@
+{
+  "name": "ankern-in-groemitz-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-08-24",
+  "workers_dev": true
+}

@@ -27,27 +27,23 @@
   ],
   "nearby": [
     {
-      "time": "8 min",
+      "time": "600 m",
       "title": "Ortskern",
-      "description": "Boutiquen, Cafés und kurze Wege in den Ort.",
       "imageKey": "nearbyCity"
     },
     {
-      "time": "14 min",
+      "time": "100 m",
       "title": "Zoo",
-      "description": "Ein ruhiger Tierpark für kurze Familienausflüge.",
       "imageKey": "nearbyZoo"
     },
     {
-      "time": "6 min",
+      "time": "900 m",
       "title": "Strand",
-      "description": "Dünenweg, Promenade und viel Platz am Wasser.",
       "imageKey": "nearbyStrand"
     },
     {
-      "time": "5 min",
+      "time": "450 m",
       "title": "Einkauf",
-      "description": "Supermarkt und frische Dinge für den Alltag im Urlaub.",
       "imageKey": "nearbyMarket"
     }
   ]

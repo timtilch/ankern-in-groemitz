@@ -1,6 +1,6 @@
 ---
 import apartment from '../data/apartment.json';
-import { Blinds, SquareParking, Umbrella, Wifi } from 'lucide';
+import { Blinds, CigaretteOff, Ruler, SquareParking, Umbrella, Wifi } from 'lucide';
 import type { IconNode } from 'lucide';
 
 const renderLucideIcon = (iconNode: IconNode) =>
@@ -13,16 +13,20 @@ const renderLucideIcon = (iconNode: IconNode) =>
 
 const factIcons: Record<string, string> = {
   WLAN: renderLucideIcon(Wifi),
+  Wohnfläche: renderLucideIcon(Ruler),
   Terrasse: renderLucideIcon(Umbrella),
   Parkplatz: renderLucideIcon(SquareParking),
-  Jalousien: renderLucideIcon(Blinds)
+  Jalousien: renderLucideIcon(Blinds),
+  Rauchfrei: renderLucideIcon(CigaretteOff)
 };
 
 const factDescriptions: Record<string, string> = {
   WLAN: 'Stabiles WLAN für Streaming, Homeoffice und schnelle Verbindungen im ganzen Apartment.',
+  Wohnfläche: '58 m² Wohnfläche in einer modernisierten 2-Zimmer-Wohnung.',
   Terrasse: 'Privater Außenplatz mit ruhiger Atmosphäre und viel Licht für Frühstück oder Abendstunden.',
   Parkplatz: 'Ein fester Stellplatz direkt am Haus macht Anreise und Ausflüge entspannt und unkompliziert.',
-  Jalousien: 'Verdunkelbare Räume für ruhige Nächte, spätes Ausschlafen und angenehme Sommertage.'
+  Jalousien: 'Außenjalousien im Schlafzimmer und elektrische Außenjalousien im Wohnzimmer.',
+  Rauchfrei: 'Das Domizil ist rauch- und haustierfrei.'
 };
 ---
 
@@ -152,7 +156,7 @@ const factDescriptions: Record<string, string> = {
     }
 
     .facts-list {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
 </style>

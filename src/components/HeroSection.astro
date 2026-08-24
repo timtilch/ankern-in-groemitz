@@ -26,10 +26,7 @@ const heroImage = mediaLibrary[heroMeta.asset];
     <div class="container hero-content">
       <div class="hero-copy">
         <span class="eyebrow">Ferienwohnung · Ostsee</span>
-        <h1>
-          <span>Ankern</span>
-          <span>in Grömitz</span>
-        </h1>
+        <h1>Ankern in Grömitz</h1>
         <div class="hero-meta">
           <p class="hero-place">{apartment.location}</p>
           <p>{apartment.tagline}</p>
@@ -52,6 +49,17 @@ const heroImage = mediaLibrary[heroMeta.asset];
     position: relative;
     min-height: min(60rem, 100vh);
     background: #d9d3c8;
+    isolation: isolate;
+  }
+
+  .hero-shell::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(90deg, rgba(12, 27, 39, 0.66) 0%, rgba(12, 27, 39, 0.34) 38%, transparent 68%),
+      linear-gradient(0deg, rgba(12, 27, 39, 0.25), transparent 46%);
   }
 
   .hero-content {
@@ -61,46 +69,51 @@ const heroImage = mediaLibrary[heroMeta.asset];
     align-items: center;
     padding-top: 6.2rem;
     padding-bottom: 3.2rem;
+    z-index: 2;
   }
 
   .hero-copy {
     display: grid;
-    gap: 1rem;
-    width: min(30rem, calc(100vw - 2rem));
-    padding: 2.2rem 2.2rem 2.1rem;
-    background: rgba(255, 255, 255, 0.76);
-    backdrop-filter: blur(14px);
+    gap: 1.15rem;
+    width: min(42rem, calc(100vw - 2rem));
+    padding: 0;
+    color: #fff;
   }
 
   .hero-meta {
     display: grid;
     gap: 0.45rem;
-    max-width: 23rem;
+    max-width: 25rem;
   }
 
   .hero-copy h1 {
     margin: 0;
     font-family: inherit;
-    font-size: clamp(3rem, 9vw, 5.5rem);
-    line-height: 0.9;
-    letter-spacing: -0.05em;
-    max-width: 8ch;
+    font-size: clamp(3.35rem, 6vw, 6.6rem);
+    line-height: 0.88;
+    letter-spacing: -0.06em;
+    max-width: none;
     font-weight: 700;
-  }
-
-  .hero-copy h1 span {
-    display: block;
+    text-shadow: 0 2px 22px rgba(8, 18, 26, 0.25);
   }
 
   .hero-copy p {
     margin: 0;
-    color: var(--text-soft);
+    color: rgba(255, 255, 255, 0.84);
     font-size: 0.98rem;
   }
 
   .hero-place {
-    color: var(--text);
+    color: #fff;
     font-weight: 600;
+  }
+
+  .hero-copy :global(.eyebrow) {
+    color: rgba(255, 255, 255, 0.72);
+  }
+
+  .hero-copy :global(.action-link) {
+    color: #fff;
   }
 
   .hero-image-wrap {
@@ -125,8 +138,22 @@ const heroImage = mediaLibrary[heroMeta.asset];
     }
 
     .hero-copy {
-      width: min(32rem, 36vw);
-      padding: 2.5rem 2.5rem 2.35rem;
+      width: min(42rem, 52vw);
+    }
+  }
+
+  @media (max-width: 719px) {
+    .hero-shell::after {
+      background: linear-gradient(0deg, rgba(12, 27, 39, 0.78) 0%, rgba(12, 27, 39, 0.3) 53%, transparent 82%);
+    }
+
+    .hero-content {
+      align-items: end;
+      padding-bottom: 2.35rem;
+    }
+
+    .hero-copy h1 {
+      font-size: clamp(3.05rem, 16vw, 4.35rem);
     }
   }
 </style>

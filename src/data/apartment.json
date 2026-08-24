@@ -3,32 +3,33 @@
   "location": "Grömitz, Schleswig-Holstein",
   "region": "Lübecker Bucht",
   "tagline": "Ruhige Tage zwischen Ostseeluft, Holzdetails und viel Licht.",
-  "shortDescription": "Eine helle Ferienwohnung für entspannte Auszeiten an der Ostsee – mit warmen Naturtönen, großzügigem Wohnbereich und kurzer Distanz zum Strand.",
-  "longDescription": "Ankern in Grömitz ist als moderner Rückzugsort für Paare, kleine Familien und Freunde gedacht, die Wert auf Ruhe, Qualität und einen unkomplizierten Aufenthalt legen. Große Fenster, natürliche Materialien, zurückhaltende Farben und ein offener Wohn-Essbereich schaffen eine Atmosphäre, die direkt nach Ankommen aussieht. Die Wohnung verbindet zeitgemäße Ausstattung mit einem wohnlichen Charakter und eignet sich sowohl für aktive Tage in der Umgebung als auch für entspannte Abende auf der Terrasse.",
+  "shortDescription": "Eine moderne, sanierte 58-m²-Ferienwohnung in ruhiger Lage - nah an Strand, Ortskern und Einkaufsmöglichkeiten.",
+  "longDescription": "Die moderne und sanierte 58-m²-Ferienwohnung bietet gemütliche Räume und die Ausstattung für einen angenehmen Urlaub. Die ruhige 2-Zimmer-Wohnung liegt rund 900 m vom Strand und 600 m vom Ortskern entfernt. Ein eigener PKW-Stellplatz gehört zur Wohnung. Das Domizil ist rauch- und haustierfrei.",
   "capacity": 4,
   "bedrooms": 2,
   "beds": 3,
-  "sizeSqm": 75,
+  "sizeSqm": 58,
   "highlights": [
-    "Sonnige Terrasse mit Essplatz",
-    "Heller Wohnbereich mit offener Küche",
-    "Ruhige Lage mit kurzem Weg zur Promenade",
-    "Eigener Parkplatz direkt am Haus",
-    "WLAN und Smart-TV für entspannte Abende"
+    "Sanierte 58-m²-2-Zimmer-Wohnung",
+    "Ruhige Lage: 900 m zum Strand",
+    "600 m zum Ortskern, 450 m zum Einkauf",
+    "Eigener PKW-Stellplatz",
+    "Rauch- und haustierfrei"
   ],
   "quickFacts": [
+    "Wohnfläche 58 m²",
     "WLAN",
     "Terrasse",
     "Parkplatz",
-    "Jalousien"
+    "Rauchfrei"
   ],
   "houseRules": {
     "checkIn": "ab 15:00 Uhr",
     "checkOut": "bis 10:00 Uhr",
     "minimumStay": "3 Nächte",
-    "pets": "Haustiere auf Anfrage",
+    "pets": "Haustierfrei",
     "parking": "1 privater Stellplatz inklusive",
-    "wifi": "Kostenloses WLAN in allen Räumen"
+    "wifi": "Kostenloses WLAN"
   },
   "contact": {
     "hostName": "Katharina Jensen",
@@ -55,7 +56,7 @@
     "surroundings": "surroundings"
   },
   "area": {
-    "intro": "Zwischen Promenade, Dünenwegen und weiten Feldern liegt die Wohnung so, dass Strandtage und ruhige Morgen gleichermaßen naheliegen. Grömitz ist lebendig genug für spontane Restaurantbesuche und gleichzeitig entspannt genug für eine echte Auszeit.",
+    "intro": "Die Wohnung liegt ruhig und zugleich nah an den wichtigen Zielen in Grömitz: rund 900 m zum Strand, 600 m zum Ortskern, 450 m zum Einkauf und nur 100 m zum Zoo.",
     "mapUrl": "https://maps.google.com/?q=Gr%C3%B6mitz"
   },
   "seo": {

@@ -3,7 +3,8 @@ node_modules
 dist
 .netlify
 .DS_Store
+.idea/
 .env
 .env.*
 !.env.example
-
+.local

@@ -1,38 +1,31 @@
 {
   "Schlafen": [
-    "1 Schlafzimmer mit Doppelbett",
-    "1 Schlafzimmer mit zwei Einzelbetten",
-    "Verdunkelungsmöglichkeiten",
-    "Kleiderschränke und Ablageflächen"
+    "Doppelbett 180 × 200 cm mit Nachtschränken",
+    "Großzügiger Kleiderschrank",
+    "Außenjalousien"
   ],
   "Küche": [
     "Voll ausgestattete Küche",
-    "Backofen und Induktionskochfeld",
-    "Geschirrspüler",
-    "Kaffeemaschine und Wasserkocher"
+    "Waschmaschine und Kühl-/Gefrierkombi",
+    "Toaster, Filter-Kaffeemaschine und Wasserkocher",
+    "Mikrowelle"
   ],
   "Badezimmer": [
-    "Tageslichtbad mit Dusche",
-    "Hochwertige Armaturen",
-    "Großer Spiegel",
-    "Stauraum für Reiseutensilien"
+    "Moderne Ausstattung",
+    "Leicht begehbare Dusche",
+    "Regendusche"
   ],
   "Außenbereich": [
-    "Private Terrasse",
-    "Essplatz im Freien",
-    "Bequeme Sitzgelegenheiten",
-    "Grünblick"
+    "Großzügige Terrasse mit südwestlicher Ausrichtung",
+    "Strandkorb",
+    "Zwei Liegestühle und Tisch"
   ],
   "Technik": [
-    "Schnelles WLAN",
+    "Satellitenfernsehen",
     "Smart-TV",
-    "Bluetooth-Lautsprecher",
-    "USB-Lademöglichkeiten"
+    "Stereoanlage"
   ],
   "Sonstiges": [
-    "Waschmaschine",
-    "Eigener Parkplatz",
-    "Kontaktloser Check-in möglich",
-    "Nichtraucherwohnung"
+    "Elektrische Außenjalousien im Wohnzimmer"
   ]
 }
