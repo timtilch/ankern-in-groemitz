@@ -46,7 +46,6 @@ const schema = getSchema(imageUrls);
     <script is:inline type="application/ld+json" set:html={JSON.stringify(schema)} />
   </head>
   <body>
-    <a class="skip-link" href="#content">Zum Inhalt springen</a>
     <slot />
   </body>
 </html>
@@ -108,20 +107,6 @@ const schema = getSchema(imageUrls);
   select,
   textarea {
     font: inherit;
-  }
-
-  .skip-link {
-    position: absolute;
-    left: 1rem;
-    top: -3rem;
-    background: var(--text);
-    color: white;
-    padding: 0.75rem 1rem;
-    z-index: 100;
-  }
-
-  .skip-link:focus {
-    top: 1rem;
   }
 
   .page-shell {
