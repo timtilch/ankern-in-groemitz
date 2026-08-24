@@ -2,7 +2,7 @@ name: Deploy website and API
 
 on:
   push:
-    branches: [master]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
