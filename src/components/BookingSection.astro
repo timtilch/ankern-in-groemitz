@@ -423,6 +423,7 @@ const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL?.replace(/\/$/, '') || ''
             </span>
           `;
           button.disabled = past || blocked;
+          button.classList.toggle('is-past', past);
           button.classList.toggle('is-blocked', blocked);
           button.classList.toggle('is-selected', selected);
           button.classList.toggle('is-arrival', arrival);
@@ -776,6 +777,13 @@ const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL?.replace(/\/$/, '') || ''
     color: rgba(23, 27, 26, 0.46);
   }
 
+  :global(.day-button.is-past) {
+    background: rgba(18, 21, 21, 0.025);
+    border-color: transparent;
+    color: rgba(23, 27, 26, 0.3);
+    opacity: 0.7;
+  }
+
   :global(.day-number) {
     display: block;
     font-weight: 500;
@@ -865,6 +873,11 @@ const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL?.replace(/\/$/, '') || ''
   }
 
   :global(.day-button.is-blocked .day-number) {
+    text-decoration: line-through;
+    text-decoration-thickness: 1px;
+  }
+
+  :global(.day-button.is-past .day-number) {
     text-decoration: line-through;
     text-decoration-thickness: 1px;
   }
