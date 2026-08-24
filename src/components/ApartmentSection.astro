@@ -17,6 +17,7 @@ type RoomEntry = {
 
 const imageCatalog = imageMeta as Record<string, ImageEntry>;
 const roomEntries = rooms as RoomEntry[];
+const portraitRoomImageKeys = new Set(['bedroom', 'kitchen', 'bathroom']);
 ---
 
 <section class="section rooms-section" id="raeume">
@@ -56,7 +57,11 @@ const roomEntries = rooms as RoomEntry[];
 
             return (
               <article
-                class:list={['room-panel', index === 0 && 'is-active']}
+                class:list={[
+                  'room-panel',
+                  portraitRoomImageKeys.has(room.imageKey) && 'is-portrait',
+                  index === 0 && 'is-active'
+                ]}
                 id={`room-panel-${index}`}
                 role="tabpanel"
                 aria-labelledby={`room-tab-${index}`}
@@ -222,6 +227,12 @@ const roomEntries = rooms as RoomEntry[];
     min-width: 0;
   }
 
+  .room-panel.is-portrait .room-visual {
+    display: grid;
+    place-items: center;
+    background: rgba(255, 255, 255, 0.32);
+  }
+
   .room-image-frame {
     position: relative;
     overflow: hidden;
@@ -236,6 +247,12 @@ const roomEntries = rooms as RoomEntry[];
     object-fit: cover;
   }
 
+  .room-panel.is-portrait .room-image-frame {
+    width: min(100%, 31rem);
+    padding-bottom: 0;
+    aspect-ratio: 3 / 4;
+  }
+
   .room-copy {
     background: rgba(255, 255, 255, 0.45);
     min-height: 100%;
@@ -246,6 +263,10 @@ const roomEntries = rooms as RoomEntry[];
     gap: 0.8rem;
     align-content: start;
     padding: 1.5rem 1.4rem;
+  }
+
+  .room-panel.is-portrait .room-copy-inner {
+    align-content: center;
   }
 
   .room-copy h3 {
@@ -307,6 +328,10 @@ const roomEntries = rooms as RoomEntry[];
     .room-copy-inner {
       height: 100%;
       padding: 2rem 1.8rem;
+    }
+
+    .room-panel.is-portrait {
+      grid-template-columns: minmax(18rem, 0.78fr) minmax(0, 1.22fr);
     }
   }
 
