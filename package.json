@@ -4,7 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "astro dev",
+    "dev": "concurrently --kill-others-on-fail -n worker,site -c cyan,green \"npm:dev:worker\" \"npm:dev:site\"",
+    "dev:worker": "cd worker && npx wrangler dev",
+    "dev:site": "PUBLIC_API_BASE_URL=http://localhost:8787 astro dev --port 4321 --strictPort",
     "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
@@ -19,6 +21,8 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
     "@types/node": "^24.3.0",
-    "typescript": "^5.9.2"
+    "concurrently": "^9.2.4",
+    "typescript": "^5.9.2",
+    "wrangler": "^4.34.0"
   }
 }
