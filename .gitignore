@@ -6,4 +6,5 @@ dist
 .idea/
 .env
 .env.*
+worker/.dev.vars
 .local

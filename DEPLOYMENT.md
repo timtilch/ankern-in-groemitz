@@ -34,6 +34,26 @@ Unter **Settings > Pages** als Quelle **GitHub Actions** waehlen. Nach dem erste
 
 Danach deployed jeder Push auf `main` zuerst den Worker und dann die Website.
 
+## Lokal testen
+
+Der Worker und Astro laufen lokal in getrennten Terminals. Lege zuerst die nicht versionierte Datei `worker/.dev.vars` an und uebernehme dort die Google-Werte sowie diese lokale Origin:
+
+```text
+ALLOWED_ORIGIN=http://localhost:4321
+```
+
+Dann starten:
+
+```sh
+cd worker && npx wrangler@4.34.0 dev
+```
+
+```sh
+PUBLIC_API_BASE_URL=http://localhost:8787 npm run dev
+```
+
+Der Browser unter `http://localhost:4321` verwendet dann den lokalen Worker. Fuer den Cloudflare-Worker oder GitHub Pages werden keine lokalen Zugangsdaten benoetigt.
+
 ## Vor dem Livegang
 
 Die Google-Zugangsdaten liegen nur als Worker-Secrets. Da vorhandene Google-Credentials bereits lokal verwendet wurden, sollten Client-Secret und Refresh-Token im Google-Cloud-Projekt neu erstellt werden, bevor sie produktiv gesetzt werden.
