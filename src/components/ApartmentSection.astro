@@ -265,10 +265,6 @@ const portraitRoomImageKeys = new Set(['bedroom', 'kitchen', 'bathroom']);
     padding: 1.5rem 1.4rem;
   }
 
-  .room-panel.is-portrait .room-copy-inner {
-    align-content: center;
-  }
-
   .room-copy h3 {
     margin: 0;
     font-size: clamp(1.6rem, 2.2vw, 2.2rem);
@@ -323,6 +319,16 @@ const portraitRoomImageKeys = new Set(['bedroom', 'kitchen', 'bathroom']);
       grid-template-columns: minmax(18rem, 0.66fr) minmax(0, 1.34fr);
       gap: 2rem;
       align-items: stretch;
+      height: 32rem;
+    }
+
+    .room-visual,
+    .room-image-frame {
+      height: 100%;
+    }
+
+    .room-image-frame {
+      padding-bottom: 0;
     }
 
     .room-copy-inner {
