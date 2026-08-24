@@ -7,6 +7,16 @@ type ImageEntry = { asset: string; alt: string; ratio: string };
 
 const nearbyEntries = (area.nearby ?? []) as NearbyEntry[];
 const imageCatalog = imageMeta as Record<string, ImageEntry>;
+const imageCredits = [
+  {
+    label: 'Zoo Arche Noah: Veliensis / Wikimedia Commons, CC BY-SA 4.0',
+    href: 'https://commons.wikimedia.org/wiki/File:Zoo_Arche_Noah_Gr%C3%B6mitz_Eingang_2016.jpg'
+  },
+  {
+    label: 'Seebrücke: Thetornado76 / Wikimedia Commons, CC0',
+    href: 'https://commons.wikimedia.org/wiki/File:Seebr%C3%BCcke_Gr%C3%B6mitz_mit_Tauchgondel.jpg'
+  }
+];
 ---
 
 <section class="section location-section" id="umgebung">
@@ -46,6 +56,16 @@ const imageCatalog = imageMeta as Record<string, ImageEntry>;
     <a class="action-link maps-link" href={apartment.area.mapUrl} target="_blank" rel="noreferrer">
       Auf Google Maps ansehen
     </a>
+
+    <p class="image-credits">
+      Bildnachweise:{' '}
+      {imageCredits.map((credit, index) => (
+        <>
+          {index > 0 && ' · '}
+          <a href={credit.href} target="_blank" rel="noreferrer">{credit.label}</a>
+        </>
+      ))}
+    </p>
   </div>
 </section>
 
@@ -110,6 +130,17 @@ const imageCatalog = imageMeta as Record<string, ImageEntry>;
 
   .maps-link {
     margin-top: 0.2rem;
+  }
+
+  .image-credits {
+    margin: 1.15rem 0 0;
+    color: var(--text-soft);
+    font-size: 0.72rem;
+    line-height: 1.5;
+  }
+
+  .image-credits a {
+    color: inherit;
   }
 
   @media (min-width: 720px) {

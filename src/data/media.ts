@@ -9,8 +9,8 @@ import exterior from '../assets/images/exterior.png';
 import surroundings from '../assets/images/surroundings.png';
 import host from '../assets/images/host-portrait.png';
 import nearbyCity from '../assets/images/nearby-city.png';
-import nearbyZoo from '../assets/images/nearby-zoo.png';
-import nearbyStrand from '../assets/images/nearby-strand.png';
+import nearbyZoo from '../assets/images/nearby-zoo.jpg';
+import nearbyStrand from '../assets/images/nearby-strand.jpg';
 import nearbyMarket from '../assets/images/nearby-market.png';
 
 export const mediaLibrary: Record<string, ImageMetadata> = {

@@ -51,12 +51,12 @@
   },
   "nearbyZoo": {
     "asset": "nearbyZoo",
-    "alt": "Tierpark mit weiten Gehegen, Holzwegen und ruhiger grüner Umgebung.",
+    "alt": "Eingang des Zoo Arche Noah in Grömitz.",
     "ratio": "16:10"
   },
   "nearbyStrand": {
     "asset": "nearbyStrand",
-    "alt": "Sandstrand mit Dünen, Stegzugang und weitem Blick auf die Ostsee.",
+    "alt": "Grömitzer Seebrücke mit Tauchgondel an der Ostsee.",
     "ratio": "16:10"
   },
   "nearbyMarket": {
