@@ -59,6 +59,7 @@ const portraitRoomImageKeys = new Set(['bedroom', 'kitchen', 'bathroom']);
               <article
                 class:list={[
                   'room-panel',
+                  `room-${room.imageKey}`,
                   portraitRoomImageKeys.has(room.imageKey) && 'is-portrait',
                   index === 0 && 'is-active'
                 ]}
@@ -325,10 +326,28 @@ const portraitRoomImageKeys = new Set(['bedroom', 'kitchen', 'bathroom']);
     .room-visual,
     .room-image-frame {
       height: 100%;
+      min-height: 0;
     }
 
     .room-image-frame {
       padding-bottom: 0;
+    }
+
+    .room-panel.is-portrait .room-image-frame {
+      width: 100%;
+      aspect-ratio: auto;
+    }
+
+    .room-bedroom :global(img.room-image) {
+      object-position: 50% 70%;
+    }
+
+    .room-kitchen :global(img.room-image) {
+      object-position: 50% 55%;
+    }
+
+    .room-bathroom :global(img.room-image) {
+      object-position: 50% 58%;
     }
 
     .room-copy-inner {
