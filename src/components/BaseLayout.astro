@@ -3,6 +3,12 @@ import apartment from '../data/apartment.json';
 import imageMeta from '../data/images.json';
 import { mediaLibrary } from '../data/media';
 import { getCanonical, getSchema } from '../lib/site';
+import '@fontsource/outfit/300.css';
+import '@fontsource/outfit/400.css';
+import '@fontsource/outfit/500.css';
+import '@fontsource/outfit/600.css';
+import '@fontsource/outfit/700.css';
+import '@fontsource/outfit/800.css';
 type ImageEntry = { asset: string; alt: string; ratio: string };
 
 interface Props {
@@ -32,9 +38,6 @@ const schema = getSchema(imageUrls);
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="canonical" href={canonical} />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />

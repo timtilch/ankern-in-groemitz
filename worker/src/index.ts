@@ -1,7 +1,7 @@
 import apartment from '../../src/data/apartment.json';
 import booking from '../../src/data/booking.json';
 import { formatDate, nightsBetween } from '../../src/lib/date';
-import { calculateStayPrice } from '../../src/lib/pricing';
+import { calculateStayPrice, calculateTouristTax } from '../../src/lib/pricing';
 
 type Env = {
   ALLOWED_ORIGIN: string;
@@ -22,7 +22,9 @@ type BookingRequest = {
   arrival?: string;
   departure?: string;
   guests?: number;
-  name?: string;
+  children?: number;
+  firstName?: string;
+  lastName?: string;
   email?: string;
   phone?: string;
   message?: string;
@@ -139,12 +141,16 @@ async function handleRequest(request: Request, env: Env) {
   const payload = await request.json() as BookingRequest;
   const arrival = requireText(payload.arrival, 'Anreise');
   const departure = requireText(payload.departure, 'Abreise');
-  const name = requireText(payload.name, 'Name');
+  const firstName = requireText(payload.firstName, 'Vorname');
+  const lastName = requireText(payload.lastName, 'Nachname');
+  const name = `${firstName} ${lastName}`;
   const email = requireText(payload.email, 'E-Mail');
   const guests = Number(payload.guests);
+  const children = Number(payload.children ?? 0);
 
   if (!ISO_DATE.test(arrival) || !ISO_DATE.test(departure) || departure <= arrival) throw new Error('Der Reisezeitraum ist ungültig.');
   if (!Number.isInteger(guests) || guests < 1 || guests > apartment.capacity) throw new Error('Die Anzahl der Personen ist ungültig.');
+  if (!Number.isInteger(children) || children < 0 || children >= guests) throw new Error('Die Anzahl der Kinder ist ungültig.');
   const minimumStay = Number.parseInt(apartment.houseRules.minimumStay, 10) || 3;
   if (nightsBetween(arrival, departure) < minimumStay) throw new Error(`Der Mindestaufenthalt beträgt ${minimumStay} Nächte.`);
 
@@ -154,13 +160,16 @@ async function handleRequest(request: Request, env: Env) {
   const selectedAddons = booking.addons.filter((addon) => payload.addons?.includes(addon.id));
   const stayPrice = calculateStayPrice(arrival, departure).total;
   const addonTotal = selectedAddons.reduce((sum, addon) => sum + addon.pricePerGuest * guests, 0);
+  const touristTax = calculateTouristTax(arrival, departure, guests - children).total;
   const details = [
     `Anreise: ${formatDate(arrival)}`,
     `Abreise: ${formatDate(departure)}`,
     `Nächte: ${nightsBetween(arrival, departure)}`,
     `Personen: ${guests}`,
+    `Davon unter 18: ${children}`,
     `Endreinigung: ${booking.cleaningFee} EUR`,
-    `Geschätzter Gesamtpreis: ${stayPrice + booking.cleaningFee + addonTotal} EUR`,
+    `Kurabgabe: ${touristTax.toFixed(2)} EUR`,
+    `Geschätzter Gesamtpreis: ${(stayPrice + booking.cleaningFee + addonTotal + touristTax).toFixed(2)} EUR`,
     `Name: ${name}`,
     `E-Mail: ${email}`,
     `Telefon: ${typeof payload.phone === 'string' ? payload.phone.trim() || '-' : '-'}`,

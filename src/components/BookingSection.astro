@@ -31,7 +31,10 @@ const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL?.replace(/\/$/, '') || ''
 
     <div class="booking-grid">
       <section class="booking-summary booking-summary-desktop" data-booking-summary>
-        <h3>Ihr Aufenthalt</h3>
+        <div class="booking-summary__head">
+          <h3>Ihr Aufenthalt</h3>
+          <p>Ihre Auswahl und Kosten auf einen Blick.</p>
+        </div>
         <dl data-summary>
           <div><dt>Anreise</dt><dd>-</dd></div>
           <div><dt>Abreise</dt><dd>-</dd></div>
@@ -80,8 +83,19 @@ const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL?.replace(/\/$/, '') || ''
               </select>
             </label>
             <label>
-              <span>Name</span>
-              <input type="text" name="name" autocomplete="name" required />
+              <span>Davon unter 18</span>
+              <select name="children" aria-describedby="children-note" disabled>
+                {Array.from({ length: apartment.capacity }, (_, index) => <option value={index}>{index}</option>)}
+              </select>
+              <small id="children-note">Unter 18-Jährige sind von der Kurabgabe befreit.</small>
+            </label>
+            <label>
+              <span>Vorname</span>
+              <input type="text" name="firstName" autocomplete="given-name" required />
+            </label>
+            <label>
+              <span>Nachname</span>
+              <input type="text" name="lastName" autocomplete="family-name" required />
             </label>
             <label>
               <span>E-Mail</span>
@@ -103,7 +117,7 @@ const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL?.replace(/\/$/, '') || ''
                     <input type="checkbox" name={`addon-${addon.id}`} value={addon.id} />
                     <span>
                       <strong>{addon.label}</strong>
-                      <small>{addon.description} · {addon.pricePerGuest} € pro Person</small>
+                      <small>{addon.description}<br /><span class="addon-price">{addon.pricePerGuest} € pro Person</span></small>
                     </span>
                   </label>
                 ))
@@ -111,11 +125,14 @@ const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL?.replace(/\/$/, '') || ''
             </fieldset>
             <label class="full checkbox">
               <input type="checkbox" name="privacy" required />
-              <span>Ich habe die Datenschutzhinweise gelesen und stimme der Verarbeitung meiner Anfrage zu.</span>
+              <span>Ich habe die <a href="/datenschutz">Datenschutzhinweise</a> gelesen.</span>
             </label>
           </div>
           <section class="booking-summary booking-summary-mobile" data-booking-summary>
-            <h3>Ihr Aufenthalt</h3>
+            <div class="booking-summary__head">
+              <h3>Ihr Aufenthalt</h3>
+              <p>Ihre Auswahl und Kosten auf einen Blick.</p>
+            </div>
             <dl data-summary>
               <div><dt>Anreise</dt><dd>-</dd></div>
               <div><dt>Abreise</dt><dd>-</dd></div>
@@ -137,7 +154,7 @@ const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL?.replace(/\/$/, '') || ''
 </section>
 
 <script>
-  import { getPriceForNight } from '../lib/pricing';
+  import { calculateTouristTax, getPriceForNight } from '../lib/pricing';
 
   type BlockedRange = {
     from: string;
@@ -161,7 +178,9 @@ const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL?.replace(/\/$/, '') || ''
     arrival: string;
     departure: string;
     guests: number;
-    name: string;
+    children: number;
+    firstName: string;
+    lastName: string;
     email: string;
     phone: string;
     message: string;
@@ -189,10 +208,13 @@ const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL?.replace(/\/$/, '') || ''
     const arrivalInput = form?.elements.namedItem('arrival');
     const departureInput = form?.elements.namedItem('departure');
     const guestInput = form?.elements.namedItem('guests');
+    const childrenInput = form?.elements.namedItem('children');
     const addonInputs = Array.from(form?.querySelectorAll<HTMLInputElement>('.addon-option input') ?? []);
 
     const formatDate = (value: string) =>
       new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(`${value}T00:00:00`));
+
+    const formatMoney = (value: number) => `${value.toFixed(2).replace('.', ',')} €`;
 
     const monthLabel = (date: Date) =>
       new Intl.DateTimeFormat('de-DE', { month: 'long', year: 'numeric' }).format(date);
@@ -242,6 +264,27 @@ const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL?.replace(/\/$/, '') || ''
           };
         })
         .filter(Boolean);
+    };
+
+    const getLiableGuests = () => {
+      const guests = guestInput instanceof HTMLSelectElement ? Number(guestInput.value) : 1;
+      const children = childrenInput instanceof HTMLSelectElement ? Number(childrenInput.value) : 0;
+      return Math.max(0, guests - Math.min(guests, children));
+    };
+
+    const syncChildrenInput = () => {
+      if (!(guestInput instanceof HTMLSelectElement) || !(childrenInput instanceof HTMLSelectElement)) return;
+
+      const maximumChildren = Math.max(0, Number(guestInput.value) - 1);
+      const selectedChildren = Math.min(Number(childrenInput.value), maximumChildren);
+      childrenInput.replaceChildren(...Array.from({ length: maximumChildren + 1 }, (_, index) => {
+        const option = document.createElement('option');
+        option.value = String(index);
+        option.textContent = String(index);
+        return option;
+      }));
+      childrenInput.value = String(selectedChildren);
+      childrenInput.disabled = maximumChildren === 0;
     };
 
     const calculatePrice = (start: string, end: string) => {
@@ -321,8 +364,10 @@ const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL?.replace(/\/$/, '') || ''
       const addonTotal = addonItems.reduce((sum, item) => sum + (item?.total ?? 0), 0);
 
       const price = calculatePrice(state.arrival, state.departure);
+      const touristTax = hasSelection ? calculateTouristTax(state.arrival, state.departure, getLiableGuests()) : { total: 0, breakdown: [] };
       summaries.forEach((summary) => {
         const values = summary.querySelectorAll('dd');
+        const labels = summary.querySelectorAll('dt');
         const breakdown = summary.querySelector<HTMLElement>('[data-breakdown]');
         const addonBreakdown = summary.querySelector<HTMLElement>('[data-addon-breakdown]');
         const total = summary.querySelector<HTMLElement>('[data-total]');
@@ -332,9 +377,10 @@ const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL?.replace(/\/$/, '') || ''
           values[0].textContent = state.arrival ? formatDate(state.arrival) : '-';
           values[1].textContent = state.departure ? formatDate(state.departure) : '-';
           values[2].textContent = '-';
+          labels[2].textContent = 'Nächte';
           breakdown.innerHTML = '';
           addonBreakdown.innerHTML = addonItems
-            .map((item) => `<div><span>${item?.label}</span><strong>${item?.qty} × ${item?.pricePerGuest} €</strong></div>`)
+            .map((item) => `<div><span>${item?.label}</span><strong>${formatMoney(item?.total ?? 0)}</strong></div>`)
             .join('');
           total.textContent = 'Bitte Zeitraum wählen';
           return;
@@ -342,15 +388,19 @@ const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL?.replace(/\/$/, '') || ''
 
         values[0].textContent = formatDate(state.arrival);
         values[1].textContent = formatDate(state.departure);
-        values[2].textContent = `${nightsBetween(state.arrival, state.departure)} Nächte`;
-        breakdown.innerHTML = price.breakdown
-          .map((item) => `<div><span>${item.label}</span><strong>${item.nights} × ${item.pricePerNight} €</strong></div>`)
-          .join('');
-        addonBreakdown.innerHTML = [
-          `<div><span>Endreinigung</span><strong>${cleaningFee} €</strong></div>`,
-          ...addonItems.map((item) => `<div><span>${item?.label}</span><strong>${item?.qty} × ${item?.pricePerGuest} €</strong></div>`)
+        labels[2].textContent = `${nightsBetween(state.arrival, state.departure)} Nächte`;
+        values[2].textContent = '';
+        breakdown.innerHTML = [
+          ...price.breakdown.map((item) => `<div><span>${item.label} · à ${formatMoney(item.pricePerNight)} / Nacht</span><strong>${formatMoney(item.nights * item.pricePerNight)}</strong></div>`),
+          `<div><span>Endreinigung</span><strong>${formatMoney(cleaningFee)}</strong></div>`,
+          ...addonItems.map((item) => `<div><span>${item?.label} · ${item?.qty} × ${formatMoney(item?.pricePerGuest ?? 0)}</span><strong>${formatMoney(item?.total ?? 0)}</strong></div>`),
+          `<div class="summary-subtotal"><span>Zwischensumme Unterkunft</span><strong>${formatMoney(price.totalPrice + cleaningFee + addonTotal)}</strong></div>`
         ].join('');
-        total.textContent = `${price.totalPrice + cleaningFee + addonTotal} €`;
+        const touristTaxTotal = touristTax.total;
+        addonBreakdown.innerHTML = touristTax.breakdown
+          .map((item) => `<div><span>Kurabgabe · ${item.days} Tage × ${item.guests} × ${formatMoney(item.rate)}</span><strong>${formatMoney(item.days * item.guests * item.rate)}</strong></div>`)
+          .join('');
+        total.textContent = formatMoney(price.totalPrice + cleaningFee + addonTotal + touristTaxTotal);
       });
     };
 
@@ -360,6 +410,7 @@ const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL?.replace(/\/$/, '') || ''
       if (guestInput instanceof HTMLSelectElement && Number(guestInput.value) > capacity) {
         guestInput.value = String(capacity);
       }
+      syncChildrenInput();
     };
 
     const setMessage = (text: string) => {
@@ -481,7 +532,9 @@ const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL?.replace(/\/$/, '') || ''
         arrival: state.arrival,
         departure: state.departure,
         guests: Number(formData.get('guests')),
-        name: String(formData.get('name') ?? '').trim(),
+        children: Number(formData.get('children')),
+        firstName: String(formData.get('firstName') ?? '').trim(),
+        lastName: String(formData.get('lastName') ?? '').trim(),
         email: String(formData.get('email') ?? '').trim(),
         phone: String(formData.get('phone') ?? '').trim(),
         message: String(formData.get('message') ?? '').trim(),
@@ -527,7 +580,13 @@ const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL?.replace(/\/$/, '') || ''
     });
 
     if (guestInput instanceof HTMLSelectElement) {
-      guestInput.addEventListener('change', () => updateSummary());
+      guestInput.addEventListener('change', () => {
+        syncChildrenInput();
+        updateSummary();
+      });
+    }
+    if (childrenInput instanceof HTMLSelectElement) {
+      childrenInput.addEventListener('change', () => updateSummary());
     }
     addonInputs.forEach((input) => input.addEventListener('change', () => updateSummary()));
 
@@ -601,6 +660,7 @@ const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL?.replace(/\/$/, '') || ''
   .request-form h3 {
     font-size: 0.78rem;
     letter-spacing: 0.14em;
+    line-height: 1.2;
     text-transform: uppercase;
   }
 
@@ -896,18 +956,32 @@ const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL?.replace(/\/$/, '') || ''
     border-top: 0;
     padding-top: 0;
     display: grid;
-    gap: 1rem;
+    gap: 1.15rem;
     align-content: start;
+  }
+
+  .booking-summary__head {
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  .booking-summary__head p {
+    margin: 0;
+    font-size: 0.92rem;
   }
 
   .booking-summary dl {
     margin: 0;
     display: grid;
-    gap: 0.7rem;
+    gap: 0.55rem;
+    color: var(--text-soft);
+    font-family: 'Outfit', 'Inter', 'Segoe UI', 'Helvetica Neue', sans-serif;
+    font-size: 0.86rem;
   }
 
   .booking-summary dl div,
-  .price-breakdown :global(div) {
+  .price-breakdown :global(div),
+  .addon-breakdown :global(div) {
     display: flex;
     justify-content: space-between;
     gap: 1rem;
@@ -915,17 +989,19 @@ const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL?.replace(/\/$/, '') || ''
 
   .price-breakdown {
     display: grid;
-    gap: 0.45rem;
+    gap: 0.5rem;
     color: var(--text-soft);
-    font-size: 0.92rem;
+    font-size: 0.86rem;
   }
 
   .addon-breakdown {
     display: grid;
-    gap: 0.4rem;
-    margin-bottom: 0.9rem;
+    gap: 0.5rem;
+    margin: 1rem 0 0;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line-strong);
     color: var(--text-soft);
-    font-size: 0.92rem;
+    font-size: 0.86rem;
   }
 
   .addon-breakdown :global(div) {
@@ -938,10 +1014,26 @@ const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL?.replace(/\/$/, '') || ''
     display: none;
   }
 
+  .summary-label {
+    color: var(--text);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .summary-subtotal {
+    margin-top: 1.1rem;
+    padding-top: 0.55rem;
+    border-top: 1px solid var(--line);
+    color: var(--text);
+    font-weight: 600;
+  }
+
   .price-total {
-    padding-top: 0;
-    border-top: 0;
-    margin-top: 0.35rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line-strong);
+    margin-top: 1rem;
     display: grid;
     gap: 0.35rem;
     justify-items: start;
@@ -959,6 +1051,12 @@ const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL?.replace(/\/$/, '') || ''
     text-align: left;
   }
 
+  .booking-summary > p {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.5;
+  }
+
   .request-form {
     border-top: 0;
     padding-top: 0;
@@ -973,6 +1071,7 @@ const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL?.replace(/\/$/, '') || ''
   .form-grid label {
     display: grid;
     gap: 0.45rem;
+    align-content: start;
   }
 
   .form-grid label > span {
@@ -1050,6 +1149,12 @@ const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL?.replace(/\/$/, '') || ''
     margin-top: 0.2rem;
   }
 
+  .addon-price {
+    display: inline-block;
+    margin-top: 0.2rem;
+    color: var(--text);
+  }
+
   .checkbox {
     grid-template-columns: auto 1fr;
     align-items: start;
@@ -1079,6 +1184,21 @@ const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL?.replace(/\/$/, '') || ''
 
   .booking-summary dt {
     color: var(--text-soft);
+    font-family: inherit !important;
+    font-size: inherit;
+  }
+
+  .booking-summary dd {
+    color: var(--text);
+    font-family: inherit !important;
+    font-size: inherit;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .booking-summary dl div:nth-child(3) dt {
+    color: var(--text);
+    font-weight: 700;
   }
 
   .booking-summary-desktop {
@@ -1106,6 +1226,11 @@ const apiBaseUrl = import.meta.env.PUBLIC_API_BASE_URL?.replace(/\/$/, '') || ''
       grid-area: summary;
       position: sticky;
       top: 1.5rem;
+      padding-top: 0.25rem;
+    }
+
+    .booking-summary__head {
+      margin-bottom: 0.65rem;
     }
 
     .booking-summary-desktop {

@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '../components/BaseLayout.astro';
-import { legal } from '../data/content';
 ---
 
 <BaseLayout title="Datenschutz | Ankern in Grömitz" pathname="/datenschutz">
@@ -9,8 +8,44 @@ import { legal } from '../data/content';
       <div class="container legal-sheet">
         <span class="eyebrow">Datenschutz</span>
         <h1>Datenschutz</h1>
-        <p><strong>Mock-/TODO-Inhalt:</strong> {legal.privacyNote}</p>
-        <p>Vor Livegang muss die tatsächliche Datenverarbeitung rechtlich geprüft und vollständig dokumentiert werden.</p>
+        <p>Diese Hinweise erklären die Verarbeitung personenbezogener Daten beim Besuch dieser Website und bei einer unverbindlichen Buchungsanfrage.</p>
+
+        <section>
+          <h2>1. Verantwortlicher</h2>
+          <p>Mathias Henning, Uferstraße 16, 23743 Grömitz, Deutschland<br /><a href="mailto:ankerningroemitz48@gmail.com">ankerningroemitz48@gmail.com</a></p>
+        </section>
+
+        <section>
+          <h2>2. Aufruf der Website und Hosting</h2>
+          <p>Die Website wird über GitHub Pages bereitgestellt. Beim Aufruf verarbeitet der technische Anbieter insbesondere IP-Adresse, Datum und Uhrzeit des Aufrufs, aufgerufene Seite, Browser- und Geräteinformationen sowie technische Protokolldaten. Die Verarbeitung dient der sicheren und zuverlässigen Bereitstellung der Website. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO; das berechtigte Interesse ist der Betrieb und Schutz dieses Internetangebots.</p>
+          <p>Für die Kalenderanzeige und den Versand des Anfrageformulars wird ein Cloudflare Worker eingesetzt. Auch dabei können technische Verbindungs- und Protokolldaten, einschließlich der IP-Adresse, verarbeitet werden. GitHub und Cloudflare können Daten auch außerhalb der EU/des EWR verarbeiten. Dabei können geeignete Garantien, insbesondere Standardvertragsklauseln, eingesetzt werden. Weitere Informationen: <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noreferrer">GitHub Privacy Statement</a> und <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noreferrer">Cloudflare Privacy Policy</a>.</p>
+        </section>
+
+        <section>
+          <h2>3. Unverbindliche Buchungsanfrage</h2>
+          <p>Wenn Sie das Anfrageformular verwenden, verarbeiten wir die von Ihnen angegebenen Daten: An- und Abreisedatum, Personenzahl, Anzahl der unter 18-Jährigen, Name, E-Mail-Adresse, optional Telefonnummer, Nachricht und gewählte Zusatzoptionen. Die Verarbeitung erfolgt ausschließlich, um Ihre unverbindliche Anfrage zu bearbeiten, Verfügbarkeit zu prüfen und hierzu mit Ihnen zu kommunizieren. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (vorvertragliche Maßnahmen).</p>
+          <p>Die Anfrage wird über den Cloudflare Worker an das Postfach <span aria-label="E-Mail-Adresse">ankerningroemitz48@gmail.com</span> bei Google Mail übermittelt. Eine Eingangsbestätigung wird an die von Ihnen angegebene E-Mail-Adresse gesendet. Google kann Daten auch außerhalb der EU/des EWR verarbeiten. Informationen hierzu finden Sie in der <a href="https://policies.google.com/privacy" target="_blank" rel="noreferrer">Datenschutzerklärung von Google</a>.</p>
+          <p>Anfragen werden im E-Mail-Postfach nur solange gespeichert, wie dies für die Bearbeitung erforderlich ist. Nicht zu einer Buchung führende Anfragen werden regelmäßig geprüft und gelöscht. Kommt ein Vertrag zustande, gelten für die Buchungsunterlagen die jeweiligen gesetzlichen Aufbewahrungspflichten.</p>
+          <p>Eine Nutzung Ihrer E-Mail-Adresse für werbliche Kontaktaufnahmen erfolgt nur, wenn hierfür eine gesonderte Einwilligung oder eine andere gesetzliche Grundlage vorliegt.</p>
+        </section>
+
+        <section>
+          <h2>4. Kurabgabe und spätere Buchung</h2>
+          <p>Die Anfrage über diese Website löst keine Buchung und keine Meldung für die Kurabgabe aus. Erst nach einer verbindlichen Buchung können zusätzliche Daten für die Vertragsabwicklung, Abrechnung und gesetzlich vorgeschriebene Meldungen an den Tourismus-Service Grömitz erforderlich sein. Hierüber erhalten Sie im jeweiligen Buchungsprozess gesonderte Informationen.</p>
+        </section>
+
+        <section>
+          <h2>5. Cookies und ähnliche Technologien</h2>
+          <p>Diese Website verwendet keine eigenen Cookies, keine Analyse- oder Marketingtools und keinen Browser-Speicher wie Local Storage. Deshalb wird kein Cookie-Banner eingesetzt. Technisch notwendige Verarbeitungen durch Browser, Hosting- und Infrastruktur-Anbieter bleiben hiervon unberührt.</p>
+        </section>
+
+        <section>
+          <h2>6. Ihre Rechte</h2>
+          <p>Sie haben nach Maßgabe der DSGVO das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Datenübertragbarkeit sowie Widerspruch gegen Verarbeitungen auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Sie können sich außerdem bei einer Datenschutzaufsichtsbehörde beschweren. Zuständig ist in Schleswig-Holstein insbesondere das Unabhängige Landeszentrum für Datenschutz Schleswig-Holstein.</p>
+          <p>Für Fragen oder zur Ausübung Ihrer Rechte genügt eine Nachricht an <a href="mailto:ankerningroemitz48@gmail.com">ankerningroemitz48@gmail.com</a>.</p>
+        </section>
+
+        <p class="updated">Stand: 29. September 2026</p>
       </div>
     </section>
   </main>
@@ -23,7 +58,8 @@ import { legal } from '../data/content';
   }
 
   .legal-sheet h1 {
-    font-family: 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Georgia, serif;
+    font-family: inherit;
+    font-weight: 700;
     font-size: clamp(2.8rem, 7vw, 5rem);
     line-height: 0.92;
     margin: 0.75rem 0 1rem;
@@ -33,5 +69,23 @@ import { legal } from '../data/content';
     margin: 0 0 1rem;
     color: var(--text-soft);
     max-width: 42rem;
+  }
+
+  .legal-sheet section + section {
+    margin-top: 2rem;
+  }
+
+  .legal-sheet h2 {
+    margin: 0 0 0.5rem;
+    font-size: 1.15rem;
+  }
+
+  .legal-sheet a {
+    color: inherit;
+  }
+
+  .updated {
+    margin-top: 2.5rem;
+    font-size: 0.9rem;
   }
 </style>

@@ -1,6 +1,7 @@
 import { addDays, eachNight, formatDate, nightsBetween, parseIsoDate, toIsoDate } from './date';
 
 export const FINAL_CLEANING_FEE = 60;
+export const TOURIST_TAX = { lowSeasonPerDay: 2.5, highSeasonPerDay: 4 };
 
 type NightPrice = {
   label: string;
@@ -79,6 +80,27 @@ export function calculateStayPrice(start: string, end: string) {
     nights: nightsBetween(start, end),
     total,
     breakdown: Array.from(grouped.values())
+  };
+}
+
+export function touristTaxRateForDay(date: string) {
+  const monthDay = date.slice(5);
+  return (monthDay >= '04-01' && monthDay <= '10-31') || monthDay >= '12-25' || monthDay <= '01-03'
+    ? TOURIST_TAX.highSeasonPerDay
+    : TOURIST_TAX.lowSeasonPerDay;
+}
+
+export function calculateTouristTax(start: string, end: string, liableGuests: number) {
+  const grouped = new Map<number, number>();
+  let total = 0;
+  eachNight(start, end).forEach((day) => {
+    const rate = touristTaxRateForDay(day);
+    total += rate * liableGuests;
+    grouped.set(rate, (grouped.get(rate) ?? 0) + 1);
+  });
+  return {
+    total,
+    breakdown: Array.from(grouped.entries()).map(([rate, days]) => ({ rate, days, guests: liableGuests }))
   };
 }
 

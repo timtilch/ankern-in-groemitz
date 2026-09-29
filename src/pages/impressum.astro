@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '../components/BaseLayout.astro';
-import { legal } from '../data/content';
 ---
 
 <BaseLayout title="Impressum | Ankern in Grömitz" pathname="/impressum">
@@ -9,8 +8,25 @@ import { legal } from '../data/content';
       <div class="container legal-sheet">
         <span class="eyebrow">Impressum</span>
         <h1>Impressum</h1>
-        <p><strong>Mock-/TODO-Inhalt:</strong> {legal.imprintNote}</p>
-        <p>Vor Livegang müssen hier vollständige und rechtlich geprüfte Angaben ergänzt werden.</p>
+        <section>
+          <h2>Angaben gemäß § 5 DDG</h2>
+          <p>
+            Mathias Henning<br />
+            Uferstraße 16<br />
+            23743 Grömitz<br />
+            Deutschland
+          </p>
+        </section>
+
+        <section>
+          <h2>Kontakt</h2>
+          <p><a href="mailto:ankerningroemitz48@gmail.com">ankerningroemitz48@gmail.com</a></p>
+        </section>
+
+        <section>
+          <h2>Umsatzsteuer</h2>
+          <p>Gemäß § 19 UStG wird keine Umsatzsteuer ausgewiesen.</p>
+        </section>
       </div>
     </section>
   </main>
@@ -23,7 +39,8 @@ import { legal } from '../data/content';
   }
 
   .legal-sheet h1 {
-    font-family: 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Georgia, serif;
+    font-family: inherit;
+    font-weight: 700;
     font-size: clamp(2.8rem, 7vw, 5rem);
     line-height: 0.92;
     margin: 0.75rem 0 1rem;
@@ -33,5 +50,18 @@ import { legal } from '../data/content';
     margin: 0 0 1rem;
     color: var(--text-soft);
     max-width: 42rem;
+  }
+
+  .legal-sheet section + section {
+    margin-top: 2rem;
+  }
+
+  .legal-sheet h2 {
+    margin: 0 0 0.5rem;
+    font-size: 1.15rem;
+  }
+
+  .legal-sheet a {
+    color: inherit;
   }
 </style>
