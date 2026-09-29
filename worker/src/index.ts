@@ -91,7 +91,15 @@ function pemToArrayBuffer(pem: string) {
 async function calendarAccessToken(env: Env) {
   if (cachedCalendarToken && cachedCalendarToken.expiresAt > Date.now() + 60_000) return cachedCalendarToken.value;
 
-  const serviceAccount = JSON.parse(env.GOOGLE_SERVICE_ACCOUNT_KEY) as { client_email?: string; private_key?: string; token_uri?: string };
+  let serviceAccount: { client_email?: string; private_key?: string; token_uri?: string };
+  try {
+    serviceAccount = JSON.parse(env.GOOGLE_SERVICE_ACCOUNT_KEY) as { client_email?: string; private_key?: string; token_uri?: string };
+  } catch {
+    serviceAccount = {
+      client_email: 'booking-calendar-reader@ankern-in-groemitz-506017.iam.gserviceaccount.com',
+      private_key: env.GOOGLE_SERVICE_ACCOUNT_KEY
+    };
+  }
   if (!serviceAccount.client_email || !serviceAccount.private_key) throw new Error('Dienstkonto-Schlüssel ist ungültig.');
 
   const now = Math.floor(Date.now() / 1_000);
