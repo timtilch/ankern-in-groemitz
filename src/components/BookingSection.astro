@@ -475,7 +475,7 @@ const basePath = `${import.meta.env.BASE_URL.replace(/\/?$/, '/')}`;
           button.innerHTML = `
             <span class="day-top">
               <span class="day-number">${day}</span>
-              ${blocked ? '<small class="day-rate day-booked" aria-hidden="true">●</small>' : nightlyRate ? `<small class="day-rate">${nightlyRate}€</small>` : ''}
+              ${nightlyRate ? `<small class="day-rate">${nightlyRate}€</small>` : ''}
             </span>
           `;
           button.disabled = past || blocked;
@@ -837,9 +837,9 @@ const basePath = `${import.meta.env.BASE_URL.replace(/\/?$/, '/')}`;
   }
 
   :global(.day-button.is-blocked) {
-    background: rgba(18, 21, 21, 0.035);
-    border-color: rgba(25, 31, 30, 0.05);
-    color: rgba(23, 27, 26, 0.46);
+    background: rgba(183, 66, 66, 0.12);
+    border-color: rgba(183, 66, 66, 0.26);
+    color: #a23838;
   }
 
   :global(.day-button.is-past) {
@@ -933,15 +933,8 @@ const basePath = `${import.meta.env.BASE_URL.replace(/\/?$/, '/')}`;
     transform: none;
   }
 
-  :global(.day-button.is-blocked .day-booked) {
-    color: #b74242;
-    font-size: 0.52rem;
-    line-height: 0.6;
-  }
-
   :global(.day-button.is-blocked .day-number) {
-    text-decoration: line-through;
-    text-decoration-thickness: 1px;
+    font-weight: 650;
   }
 
   :global(.day-button.is-past .day-number) {
