@@ -24,7 +24,7 @@ const {
 } = Astro.props;
 
 const canonical = getCanonical(pathname);
-const basePath = import.meta.env.BASE_URL;
+const basePath = `${import.meta.env.BASE_URL.replace(/\/?$/, '/')}`;
 const imageCatalog = imageMeta as Record<string, ImageEntry>;
 const heroImage = mediaLibrary[imageCatalog[apartment.imageKeys.hero].asset];
 const imageUrls = Object.values(apartment.imageKeys).map((key) => getCanonical(mediaLibrary[imageCatalog[key].asset].src));
