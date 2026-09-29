@@ -2,14 +2,14 @@ import apartment from '../../src/data/apartment.json';
 import booking from '../../src/data/booking.json';
 import { formatDate, nightsBetween } from '../../src/lib/date';
 import { calculateStayPrice, calculateTouristTax } from '../../src/lib/pricing';
+import { connect } from 'cloudflare:sockets';
 
 type Env = {
   ALLOWED_ORIGIN: string;
   GOOGLE_CALENDAR_ID?: string;
-  GOOGLE_CLIENT_ID: string;
-  GOOGLE_CLIENT_SECRET: string;
+  GOOGLE_SERVICE_ACCOUNT_KEY: string;
   GOOGLE_MAILBOX_ADDRESS: string;
-  GOOGLE_OAUTH_REFRESH_TOKEN: string;
+  GMAIL_SMTP_APP_PASSWORD: string;
 };
 
 type BlockedRange = { from: string; to: string };
@@ -33,8 +33,7 @@ type BookingRequest = {
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token';
-const GMAIL_API_URL = 'https://gmail.googleapis.com/gmail/v1/users/me';
-let cachedToken: { value: string; expiresAt: number } | undefined;
+let cachedCalendarToken: { value: string; expiresAt: number } | undefined;
 
 function corsHeaders(request: Request, env: Env) {
   const origin = request.headers.get('Origin');
@@ -74,28 +73,55 @@ function mapEventToBlockedRange(event: GoogleEvent): BlockedRange | null {
   return to >= from ? { from, to } : null;
 }
 
-async function googleAccessToken(env: Env) {
-  if (cachedToken && cachedToken.expiresAt > Date.now() + 60_000) return cachedToken.value;
+function base64Url(value: string) {
+  const bytes = new TextEncoder().encode(value);
+  let binary = '';
+  bytes.forEach((byte) => { binary += String.fromCharCode(byte); });
+  return btoa(binary).replaceAll('+', '-').replaceAll('/', '_').replaceAll('=', '');
+}
 
-  const response = await fetch(GOOGLE_TOKEN_URL, {
+function pemToArrayBuffer(pem: string) {
+  const base64 = pem.replace(/-----BEGIN PRIVATE KEY-----|-----END PRIVATE KEY-----|\s/g, '');
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let index = 0; index < binary.length; index += 1) bytes[index] = binary.charCodeAt(index);
+  return bytes.buffer;
+}
+
+async function calendarAccessToken(env: Env) {
+  if (cachedCalendarToken && cachedCalendarToken.expiresAt > Date.now() + 60_000) return cachedCalendarToken.value;
+
+  const serviceAccount = JSON.parse(env.GOOGLE_SERVICE_ACCOUNT_KEY) as { client_email?: string; private_key?: string; token_uri?: string };
+  if (!serviceAccount.client_email || !serviceAccount.private_key) throw new Error('Dienstkonto-Schlüssel ist ungültig.');
+
+  const now = Math.floor(Date.now() / 1_000);
+  const tokenUrl = serviceAccount.token_uri || GOOGLE_TOKEN_URL;
+  const unsignedJwt = `${base64Url(JSON.stringify({ alg: 'RS256', typ: 'JWT' }))}.${base64Url(JSON.stringify({
+    iss: serviceAccount.client_email,
+    scope: 'https://www.googleapis.com/auth/calendar.readonly',
+    aud: tokenUrl,
+    iat: now,
+    exp: now + 3_600
+  }))}`;
+  const privateKey = await crypto.subtle.importKey('pkcs8', pemToArrayBuffer(serviceAccount.private_key), { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['sign']);
+  const signature = await crypto.subtle.sign('RSASSA-PKCS1-v1_5', privateKey, new TextEncoder().encode(unsignedJwt));
+  const signatureBinary = String.fromCharCode(...new Uint8Array(signature));
+  const assertion = `${unsignedJwt}.${btoa(signatureBinary).replaceAll('+', '-').replaceAll('/', '_').replaceAll('=', '')}`;
+
+  const response = await fetch(tokenUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      client_id: env.GOOGLE_CLIENT_ID,
-      client_secret: env.GOOGLE_CLIENT_SECRET,
-      refresh_token: env.GOOGLE_OAUTH_REFRESH_TOKEN,
-      grant_type: 'refresh_token'
-    })
+    body: new URLSearchParams({ grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer', assertion })
   });
   const payload = await response.json() as { access_token?: string; expires_in?: number; error_description?: string };
-  if (!response.ok || !payload.access_token) throw new Error(payload.error_description || 'Google-Authentifizierung fehlgeschlagen.');
+  if (!response.ok || !payload.access_token) throw new Error(payload.error_description || 'Google-Kalender-Authentifizierung fehlgeschlagen.');
 
-  cachedToken = { value: payload.access_token, expiresAt: Date.now() + (payload.expires_in ?? 3_000) * 1_000 };
-  return cachedToken.value;
+  cachedCalendarToken = { value: payload.access_token, expiresAt: Date.now() + (payload.expires_in ?? 3_000) * 1_000 };
+  return cachedCalendarToken.value;
 }
 
 async function blockedRanges(env: Env) {
-  const token = await googleAccessToken(env);
+  const token = await calendarAccessToken(env);
   const params = new URLSearchParams({ maxResults: '250', singleEvents: 'true', orderBy: 'startTime', timeMin: new Date().toISOString() });
   const calendarId = env.GOOGLE_CALENDAR_ID || 'primary';
   const response = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?${params}`, {
@@ -110,31 +136,84 @@ async function blockedRanges(env: Env) {
     .filter((range): range is BlockedRange => Boolean(range));
 }
 
-function base64Url(value: string) {
+function base64(value: string) {
   const bytes = new TextEncoder().encode(value);
   let binary = '';
   bytes.forEach((byte) => { binary += String.fromCharCode(byte); });
-  return btoa(binary).replaceAll('+', '-').replaceAll('/', '_').replaceAll('=', '');
+  return btoa(binary);
+}
+
+type SmtpReaderState = { buffer: string };
+
+async function smtpResponse(reader: ReadableStreamDefaultReader<Uint8Array>, state: SmtpReaderState) {
+  const decoder = new TextDecoder();
+  while (true) {
+    const newline = state.buffer.indexOf('\n');
+    if (newline >= 0) {
+      const line = state.buffer.slice(0, newline).replace(/\r$/, '');
+      state.buffer = state.buffer.slice(newline + 1);
+      const match = /^(\d{3})([ -])/.exec(line);
+      if (match?.[2] === ' ') return { code: Number(match[1]), line };
+      continue;
+    }
+
+    const { done, value } = await reader.read();
+    if (done) throw new Error('SMTP-Verbindung wurde unerwartet beendet.');
+    state.buffer += decoder.decode(value, { stream: true });
+  }
+}
+
+async function smtpCommand(
+  writer: WritableStreamDefaultWriter<Uint8Array>,
+  reader: ReadableStreamDefaultReader<Uint8Array>,
+  state: SmtpReaderState,
+  command: string,
+  expected: number[]
+) {
+  await writer.write(new TextEncoder().encode(`${command}\r\n`));
+  const response = await smtpResponse(reader, state);
+  if (!expected.includes(response.code)) throw new Error(`SMTP-Server hat den Versand abgelehnt (${response.code}).`);
 }
 
 async function sendMail(env: Env, message: { to: string; subject: string; text: string; replyTo?: string }) {
   const sanitize = (value: string) => value.replace(/[\r\n]+/g, ' ').trim();
-  const token = await googleAccessToken(env);
+  if (!env.GMAIL_SMTP_APP_PASSWORD) throw new Error('E-Mail-Versand ist noch nicht eingerichtet.');
+
   const headers = [
     `From: ${sanitize(env.GOOGLE_MAILBOX_ADDRESS)}`,
     `To: ${sanitize(message.to)}`,
-    `Subject: ${sanitize(message.subject)}`,
+    `Subject: =?UTF-8?B?${base64(sanitize(message.subject))}?=`,
     'MIME-Version: 1.0',
-    'Content-Type: text/plain; charset=UTF-8'
+    'Content-Type: text/plain; charset=UTF-8',
+    'Content-Transfer-Encoding: base64'
   ];
   if (message.replyTo) headers.push(`Reply-To: ${sanitize(message.replyTo)}`);
 
-  const response = await fetch(`${GMAIL_API_URL}/messages/send`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ raw: base64Url(`${headers.join('\r\n')}\r\n\r\n${message.text}`) })
-  });
-  if (!response.ok) throw new Error('E-Mail konnte nicht versendet werden.');
+  const socket = connect({ hostname: 'smtp.gmail.com', port: 465 }, { secureTransport: 'on' });
+  const writer = socket.writable.getWriter();
+  const reader = socket.readable.getReader();
+  const state: SmtpReaderState = { buffer: '' };
+  try {
+    const greeting = await smtpResponse(reader, state);
+    if (greeting.code !== 220) throw new Error('Gmail SMTP ist nicht erreichbar.');
+    await smtpCommand(writer, reader, state, 'EHLO ankerningroemitz.de', [250]);
+    await smtpCommand(writer, reader, state, 'AUTH LOGIN', [334]);
+    await smtpCommand(writer, reader, state, base64(env.GOOGLE_MAILBOX_ADDRESS), [334]);
+    await smtpCommand(writer, reader, state, base64(env.GMAIL_SMTP_APP_PASSWORD.replaceAll(' ', '')), [235]);
+    await smtpCommand(writer, reader, state, `MAIL FROM:<${sanitize(env.GOOGLE_MAILBOX_ADDRESS)}>`, [250]);
+    await smtpCommand(writer, reader, state, `RCPT TO:<${sanitize(message.to)}>`, [250, 251]);
+    await smtpCommand(writer, reader, state, 'DATA', [354]);
+
+    const encodedBody = base64(message.text).replace(/.{1,76}/g, '$&\r\n');
+    await writer.write(new TextEncoder().encode(`${headers.join('\r\n')}\r\n\r\n${encodedBody}\r\n.\r\n`));
+    const accepted = await smtpResponse(reader, state);
+    if (accepted.code !== 250) throw new Error(`SMTP-Server hat den Versand abgelehnt (${accepted.code}).`);
+    await smtpCommand(writer, reader, state, 'QUIT', [221]);
+  } finally {
+    try { await writer.close(); } catch { /* Verbindung ist bereits geschlossen. */ }
+    reader.releaseLock();
+    writer.releaseLock();
+  }
 }
 
 async function handleRequest(request: Request, env: Env) {
