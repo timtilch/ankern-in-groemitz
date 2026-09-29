@@ -467,11 +467,15 @@ const basePath = `${import.meta.env.BASE_URL.replace(/\/?$/, '/')}`;
           button.type = 'button';
           button.className = 'day-button';
           button.dataset.date = date;
+          if (blocked) {
+            button.title = 'Ausgebucht';
+            button.setAttribute('aria-label', `${day}. ${monthLabel(monthDate)}, ausgebucht`);
+          }
           if (date === today) button.dataset.today = 'true';
           button.innerHTML = `
             <span class="day-top">
               <span class="day-number">${day}</span>
-              ${blocked ? '<small class="day-rate day-booked">Ausgebucht</small>' : nightlyRate ? `<small class="day-rate">${nightlyRate}€</small>` : ''}
+              ${blocked ? '<small class="day-rate day-booked" aria-hidden="true">●</small>' : nightlyRate ? `<small class="day-rate">${nightlyRate}€</small>` : ''}
             </span>
           `;
           button.disabled = past || blocked;
@@ -931,10 +935,8 @@ const basePath = `${import.meta.env.BASE_URL.replace(/\/?$/, '/')}`;
 
   :global(.day-button.is-blocked .day-booked) {
     color: #b74242;
-    font-size: 0.56rem;
-    font-weight: 700;
-    letter-spacing: 0.025em;
-    text-transform: uppercase;
+    font-size: 0.52rem;
+    line-height: 0.6;
   }
 
   :global(.day-button.is-blocked .day-number) {
