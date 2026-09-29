@@ -475,7 +475,7 @@ const basePath = `${import.meta.env.BASE_URL.replace(/\/?$/, '/')}`;
           button.innerHTML = `
             <span class="day-top">
               <span class="day-number">${day}</span>
-              ${nightlyRate ? `<small class="day-rate">${nightlyRate}€</small>` : ''}
+              ${blocked ? '<small class="day-rate day-booked" aria-hidden="true">Belegt</small>' : nightlyRate ? `<small class="day-rate">${nightlyRate}€</small>` : ''}
             </span>
           `;
           button.disabled = past || blocked;
@@ -936,6 +936,16 @@ const basePath = `${import.meta.env.BASE_URL.replace(/\/?$/, '/')}`;
 
   :global(.day-button.is-blocked .day-number) {
     font-weight: 650;
+    text-decoration: line-through;
+    text-decoration-thickness: 1px;
+  }
+
+  :global(.day-button.is-blocked .day-booked) {
+    color: #a23838;
+    font-size: 0.52rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
   }
 
   :global(.day-button.is-past .day-number) {
